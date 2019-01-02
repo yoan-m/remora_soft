@@ -11,6 +11,9 @@
 // **********************************************************************************
 
 #include "pilotes.h"
+#ifdef MOD_MQTT
+#include "mqtt.h"
+#endif
 
 #if (NB_FILS_PILOTES==7)
   int SortiesFP[NB_FILS_PILOTES*2] = { FP1,FP2,FP3,FP4,FP5,FP6,FP7 };
@@ -28,6 +31,11 @@ uint8_t plusAncienneZoneDelestee = 1;
 // Numéro de la zone qui est délestée depuis le plus de temps (entre 1 et nombre de zones)
 // C'est la première zone à être délestée
 unsigned long timerDelestRelest = 0; // Timer de délestage/relestage
+
+#ifdef MOD_MQTT
+  String lastMqttMessageFP = "";
+  String lastMqttMessageRelais = "";
+#endif
 
 // Instanciation de l'I/O expander
 Adafruit_MCP23017 mcp;
@@ -138,6 +146,20 @@ int setfp_interne(uint8_t fp, char cOrdre)
     etatFP[fp-1]=cOrdre;
     Debug("etatFP=");
     Debugln(etatFP);
+
+    #ifdef MOD_MQTT
+      String message = String("FP=" + String(etatFP));
+      if ( lastMqttMessageFP != message ) {
+        char message_send[] = "";
+        message.toCharArray(message_send, message.length()+1);
+        Debug("message_send = ");
+        Debugln(message_send);
+        if ( mqttClient.publish(MQTT_TOPIC_FP, 2, true, message_send)  == 0 ) {
+          Debugf("Mqtt : Erreur publish FP1\n");
+        }
+        lastMqttMessageFP = message;
+      }
+    #endif
 
     switch (cOrdre)
     {
@@ -369,6 +391,20 @@ int relais(String command)
   #endif
   #ifdef LED_PIN
     _digitalWrite(LED_PIN, etatrelais);
+  #endif
+    
+  #ifdef MOD_MQTT
+    String message = String("Mode:" + String(fnctRelais) + "|Etat:" + String(cmd));
+    if ( lastMqttMessageRelais != message ) {
+      char message_send[] = "";
+      message.toCharArray(message_send, message.length()+1);
+      Debug("message_send = ");
+      Debugln(message_send);
+      if ( mqttClient.publish(MQTT_TOPIC_RELAIS, 2, true, message_send)  == 0 ) {
+        Debugf("Mqtt : Erreur publish Relais1\n");
+      }
+      lastMqttMessageRelais = message;
+    }
   #endif
 
   return (etatrelais);

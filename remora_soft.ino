@@ -49,6 +49,7 @@
   #include <ESP8266mDNS.h>
   #include <ESPAsyncTCP.h>
   #include <ESPAsyncWebServer.h>
+  #include <AsyncMqttClient.h>
   #include <WiFiUdp.h>
   #include <ArduinoOTA.h>
   #include <Wire.h>
@@ -102,6 +103,15 @@ int my_cloud_disconnect = 0;
 
   Ticker Tick_emoncms;
   Ticker Tick_jeedom;
+
+  WiFiEventHandler wifiConnectHandler;
+  WiFiEventHandler wifiDisconnectHandler;
+  Ticker wifiReconnectTimer;
+
+  #ifdef MOD_MQTT
+    AsyncMqttClient mqttClient;
+    Ticker mqttReconnectTimer;
+  #endif
 
   volatile boolean task_emoncms = false;
   volatile boolean task_jeedom = false;
@@ -324,6 +334,26 @@ int WifiHandleConn(boolean setup = false)
 
 #endif
 
+void onWifiConnect(const WiFiEventStationModeGotIP& event) {
+  Debug("Connecté au WiFi, IP : ");
+  Debugln(WiFi.localIP());
+  #ifdef MOD_MQTT
+    connectToMqtt();
+  #endif
+}
+
+void WifiReConn(void) {
+  WifiHandleConn(true);
+}
+
+void onWifiDisconnect(const WiFiEventStationModeDisconnected& event) {
+  Debugln("Déconecté du WiFi.");
+  #ifdef MOD_MQTT
+    mqttReconnectTimer.detach(); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
+  #endif
+  wifiReconnectTimer.once(2, WifiReConn);
+}
+
 /* ======================================================================
 Function: timeAgo
 Purpose : format total seconds to human readable text
@@ -523,7 +553,14 @@ void mysetup()
     rgb_brightness = config.led_bright;
     DebugF("RGB Brightness: "); Debugln(rgb_brightness);
 
+    #ifdef MOD_MQTT
+      // Initialisation du client mqtt
+      initMqtt();
+    #endif
+
     // Connection au Wifi ou Vérification
+    wifiConnectHandler = WiFi.onStationModeGotIP(onWifiConnect);
+    wifiDisconnectHandler = WiFi.onStationModeDisconnected(onWifiDisconnect);
     WifiHandleConn(true);
 
     // OTA callbacks
@@ -706,6 +743,9 @@ void mysetup()
   #endif
   #ifdef MOD_ADPS
     Debug("ADPS ");
+  #endif
+  #ifdef MOD_MQTT
+    Debug("MQTT ");
   #endif
 
   Debugln();

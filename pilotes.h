@@ -75,6 +75,8 @@ extern char memFP[];
 extern int nivDelest;
 extern uint8_t plusAncienneZoneDelestee;
 extern unsigned long timerDelestRelest;
+//extern String lastMqttMessageFP = "";
+//extern String lastMqttMessageRelais = "";
 
 // Function exported for other source file
 // =======================================
