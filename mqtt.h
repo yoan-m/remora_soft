@@ -1,5 +1,21 @@
-// include MQTT library from marvinroger
-#include <AsyncMqttClient.h>
+// **********************************************************************************
+// MQTT header file for remora project
+// **********************************************************************************
+// Creative Commons Attrib Share-Alike License
+// You are free to use/extend but please abide with the CC-BY-SA license:
+// http://creativecommons.org/licenses/by-sa/4.0/
+//
+// Written by bronco0 (https://github.com/bronco0/remora_soft)
+//
+// History : 08/01/2019 : First release
+//
+// All text above must be included in any redistribution.
+//
+// **********************************************************************************
+
+#ifndef __MQTT_H__
+#define __MQTT_H__
+
 #include "remora.h"
 
 #define MQTT_TOPIC_BASE "remora/"
@@ -25,3 +41,5 @@ void onMqttUnsubscribe(uint16_t packetId);
 void onMqttMessage(char*, char*, AsyncMqttClientMessageProperties, size_t, size_t, size_t);
 void onMqttPublish(uint16_t);
 void initMqtt(void);
+
+#endif

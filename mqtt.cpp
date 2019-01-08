@@ -1,3 +1,17 @@
+// **********************************************************************************
+// MQTT source file for remora project
+// **********************************************************************************
+// Creative Commons Attrib Share-Alike License
+// You are free to use/extend but please abide with the CC-BY-SA license:
+// http://creativecommons.org/licenses/by-sa/4.0/
+//
+// Written by bronco0 (https://github.com/bronco0/remora_soft)
+//
+// History : 08/01/2019 : First release
+//
+// All text above must be included in any redistribution.
+// **********************************************************************************
+
 #include "mqtt.h"
 
 void connectToMqtt() {

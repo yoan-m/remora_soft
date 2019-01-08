@@ -111,6 +111,9 @@
   #include <ESP8266mDNS.h>
   #include <ESPAsyncTCP.h>
   #include <ESPAsyncWebServer.h>
+  #ifdef MOD_MQTT
+    #include <AsyncMqttClient.h>
+  #endif
   #include <WiFiUdp.h>
   #include <Ticker.h>
   #include <NeoPixelBus.h>

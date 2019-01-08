@@ -11,9 +11,6 @@
 // **********************************************************************************
 
 #include "pilotes.h"
-#ifdef MOD_MQTT
-#include "mqtt.h"
-#endif
 
 #if (NB_FILS_PILOTES==7)
   int SortiesFP[NB_FILS_PILOTES*2] = { FP1,FP2,FP3,FP4,FP5,FP6,FP7 };
