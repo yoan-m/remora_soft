@@ -31,10 +31,10 @@
 //  Définir ici les modules utilisés sur la carte Remora
 //#define MOD_RF69       /* Module RF  */
 //#define MOD_OLED       /* Afficheur  */
-//#define MOD_TELEINFO   /* Teleinfo   */
+#define MOD_TELEINFO   /* Teleinfo   */
 //#define MOD_RF_OREGON  /* Reception des sondes orégon */
-//#define MOD_ADPS       /* Délestage */
-#define MOD_MQTT        /* MQTT */
+#define MOD_ADPS       /* Délestage */
+//#define MOD_MQTT        /* MQTT */
 
 // Type of OLED
 #define OLED_SH1106
@@ -97,8 +97,10 @@
   #define DEFAULT_OTA_PASS  "Remora_OTA"
   #define DEFAULT_HOSTNAME  "remora"
   // =====================================
-  #define MQTT_HOST IPAddress(X, X, X, X)
-  #define MQTT_PORT 1883
+  #ifdef MOD_MQTT
+    #define MQTT_HOST IPAddress(X, X, X, X)
+    #define MQTT_PORT 1883
+  #endif
   // =====================================
   #include "Arduino.h"
   #include <EEPROM.h>
@@ -174,7 +176,9 @@ extern "C" {
   #include "./tinfo.h"
   #include "./webserver.h"
   #include "./webclient.h"
-  #include "./mqtt.h"
+  #ifdef MOD_MQTT
+    #include "./mqtt.h"
+  #endif
 
 #endif
 

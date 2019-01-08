@@ -334,20 +334,65 @@ int WifiHandleConn(boolean setup = false)
 
 #endif
 
-void onWifiConnect(const WiFiEventStationModeGotIP& event) {
-  Debug("Connecté au WiFi, IP : ");
+
+void WifiReConn(void) {
+  WifiHandleConn(true);
+}
+
+/* ======================================================================
+Function: onWifiStaConnect
+Purpose : Connect to MQTT brocker when WiFi STA is UP
+Input   : event
+Output  : 
+Comments: Fire when the WiFi Station get ip
+====================================================================== */
+void onWifiStaConnect(const WiFiEventStationModeGotIP& event) {
+  Debug("Connecté au WiFi STA, IP : ");
   Debugln(WiFi.localIP());
   #ifdef MOD_MQTT
     connectToMqtt();
   #endif
 }
 
-void WifiReConn(void) {
-  WifiHandleConn(true);
+/* ======================================================================
+Function: onWifiStaDisconnect
+Purpose : Suspend connection to MQTT brocker and reconnect the WiFi STA.
+Input   : event
+Output  : 
+Comments: Fire when the WiFi Station is disconnected
+====================================================================== */
+void onWifiStaDisconnect(const WiFiEventStationModeDisconnected& event) {
+  Debugln("Déconecté du WiFi.");
+  #ifdef MOD_MQTT
+    mqttReconnectTimer.detach(); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
+  #endif
+  wifiReconnectTimer.once(2, WifiReConn);
 }
 
-void onWifiDisconnect(const WiFiEventStationModeDisconnected& event) {
-  Debugln("Déconecté du WiFi.");
+/* ======================================================================
+Function: onWifiApConnect
+Purpose : Connect to MQTT brocker when WiFi AP is UP
+Input   : event
+Output  : 
+Comments: Fire when the WiFi AP is connected
+====================================================================== */
+void onWifiApConnect(const WiFiEventSoftAPModeStationConnected event) {
+ Debug("WiFi AP is UP, IP : ");
+  Debugln(WiFi.softAPIP());
+  #ifdef MOD_MQTT
+    connectToMqtt();
+  #endif
+}
+
+/* ======================================================================
+Function: onWifiApDisconnect
+Purpose : Suspend connection to MQTT brocker and restart the WiFi AP.
+Input   : event
+Output  : 
+Comments: Fire when the WiFi AP is disconnected
+====================================================================== */
+void onWifiApDisconnect(const WiFiEventSoftAPModeStationDisconnected event) {
+  Debugln("WiFi AP is down.");
   #ifdef MOD_MQTT
     mqttReconnectTimer.detach(); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
   #endif
@@ -559,8 +604,12 @@ void mysetup()
     #endif
 
     // Connection au Wifi ou Vérification
-    wifiConnectHandler = WiFi.onStationModeGotIP(onWifiConnect);
-    wifiDisconnectHandler = WiFi.onStationModeDisconnected(onWifiDisconnect);
+    #ifdef MOD_MQTT
+      wifiStaConnectHandler = WiFi.onStationModeGotIP(onWifiStaConnect);
+      wifiStaDisconnectHandler = WiFi.onStationModeDisconnected(onWifiStaDisconnect);
+      wifiApConnectHandler = WiFi.onSoftAPModeStationConnected(onWifiApConnect);
+      wifiApDisconnectHandler = WiFi.onSoftAPModeStationDisconnected(onWifiApDisconnect);
+    #endif
     WifiHandleConn(true);
 
     // OTA callbacks
