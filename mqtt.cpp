@@ -14,6 +14,9 @@
 
 #include "mqtt.h"
 
+AsyncMqttClient mqttClient;
+Ticker mqttReconnectTimer;
+
 void connectToMqtt() {
   Debugln("Connection au broker MQTT...");
   mqttClient.connect();
@@ -124,6 +127,8 @@ void initMqtt(void) {
   mqttClient.onMessage(onMqttMessage);
   mqttClient.onPublish(onMqttPublish);
   //mqttClient.setCredential(const char* username, const char* password);
-  mqttClient.setServer(MQTT_HOST, MQTT_PORT);
+  #if(defined MQTT_HOST && defined MQTT_PORT)
+    mqttClient.setServer(MQTT_HOST, MQTT_PORT);
+  #endif
   //mqttClient.setSecure(bool secure);
 }

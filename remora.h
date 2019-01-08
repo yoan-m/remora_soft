@@ -97,7 +97,7 @@
   #define DEFAULT_OTA_PASS  "Remora_OTA"
   #define DEFAULT_HOSTNAME  "remora"
   // =====================================
-  #ifdef MOD_MQTT
+  #ifdef MOQ_MQTT
     #define MQTT_HOST IPAddress(X, X, X, X)
     #define MQTT_PORT 1883
   #endif
@@ -111,9 +111,7 @@
   #include <ESP8266mDNS.h>
   #include <ESPAsyncTCP.h>
   #include <ESPAsyncWebServer.h>
-  #ifdef MOD_MQTT
-    #include <AsyncMqttClient.h>
-  #endif
+  #include <AsyncMqttClient.h>
   #include <WiFiUdp.h>
   #include <Ticker.h>
   #include <NeoPixelBus.h>
@@ -302,11 +300,6 @@ extern unsigned long uptime;
 
   extern Ticker Tick_emoncms;
   extern Ticker Tick_jeedom;
-
-  #ifdef MOD_MQTT
-    extern AsyncMqttClient mqttClient;
-    extern Ticker mqttReconnectTimer;
-  #endif
 
   extern bool   reboot; /* Flag to reboot the ESP */
   extern bool   ota_blink;

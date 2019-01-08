@@ -32,7 +32,11 @@
 // Under MQTT_TOPIC_TINFO we are send teleinformation
 #define MQTT_TOPIC_TINFO  MQTT_TOPIC_BASE "tinfo"
 
+// Variables
+extern AsyncMqttClient mqttClient;
+extern Ticker mqttReconnectTimer;
 
+// Fonctions
 void connectToMqtt(void);
 void onMqttConnect(bool);
 void onMqttDisconnect(AsyncMqttClientDisconnectReason);

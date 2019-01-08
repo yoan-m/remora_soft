@@ -108,11 +108,6 @@ int my_cloud_disconnect = 0;
   WiFiEventHandler wifiDisconnectHandler;
   Ticker wifiReconnectTimer;
 
-  #ifdef MOD_MQTT
-    AsyncMqttClient mqttClient;
-    Ticker mqttReconnectTimer;
-  #endif
-
   volatile boolean task_emoncms = false;
   volatile boolean task_jeedom = false;
 
