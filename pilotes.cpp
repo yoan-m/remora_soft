@@ -145,7 +145,7 @@ int setfp_interne(uint8_t fp, char cOrdre)
     Debugln(etatFP);
 
     #ifdef MOD_MQTT
-      String message = String("FP=" + String(etatFP));
+      String message = String("{\"FP\":\"" + String(etatFP) + "\"}");
       if ( lastMqttMessageFP != message ) {
         char message_send[] = "";
         message.toCharArray(message_send, message.length()+1);
@@ -391,7 +391,7 @@ int relais(String command)
   #endif
     
   #ifdef MOD_MQTT
-    String message = String("Mode:" + String(fnctRelais) + "|Etat:" + String(cmd));
+    String message = String("{\"Mode\":\"" + String(fnctRelais) + "\",\"Etat\":\"" + String(cmd) + "\"}");
     if ( lastMqttMessageRelais != message ) {
       char message_send[] = "";
       message.toCharArray(message_send, message.length()+1);

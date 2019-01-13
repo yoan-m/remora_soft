@@ -32,8 +32,8 @@ void onMqttConnect(bool sessionPresent) {
   Debug("Subscribing at QoS 2, packetId: ");
   Debugln(packetIdSub);
 
- mqttClient.publish(MQTT_TOPIC_FP, 2, true, "Remora FP : UP");
- mqttClient.publish(MQTT_TOPIC_RELAIS, 2, true, "Remora RELAIS : UP");
+ mqttClient.publish(MQTT_TOPIC_FP, 2, true, "{\"FP\":\"UP\"}");
+ mqttClient.publish(MQTT_TOPIC_RELAIS, 2, true, "{\"RELAIS\":\"UP\"}");
 }
 
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
