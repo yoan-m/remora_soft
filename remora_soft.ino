@@ -467,8 +467,10 @@ void mysetup()
 
   #elif defined (ESP8266)
 
-    #ifdef MOD_TELEINFO
-      // Init de la téléinformation
+    // Init de la téléinformation
+    #if (defined MOD_TELEINFO && defined LINKY)
+      Serial.begin(9600, SERIAL_7E1);
+    #else
       Serial.begin(1200, SERIAL_7E1);
     #endif
 

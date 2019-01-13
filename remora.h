@@ -35,6 +35,10 @@
 //#define MOD_RF_OREGON   /* Reception des sondes orégon */
 #define MOD_ADPS          /* Délestage */
 
+// Décommenter si le compteur est un LINKY
+//#define LINKY
+//#define TIC_MODE "historique" // Standard ou historique
+
 // Type of OLED
 #define OLED_SH1106
 #define OLED_SSD1306

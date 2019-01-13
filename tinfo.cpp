@@ -233,7 +233,9 @@ bool tinfo_setup(bool wait_data)
   Debug("Initializing Teleinfo...");
   Debugflush();
 
-  #ifdef SPARK
+  #if (defined SPARK && defined LINKY)
+    Serial1.begin(9600);  // Port série RX/TX on serial1 for Spark
+  #else
     Serial1.begin(1200);  // Port série RX/TX on serial1 for Spark
   #endif
 
