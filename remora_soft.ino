@@ -104,8 +104,8 @@ int my_cloud_disconnect = 0;
   Ticker Tick_emoncms;
   Ticker Tick_jeedom;
 
-  WiFiEventHandler wifiConnectHandler;
-  WiFiEventHandler wifiDisconnectHandler;
+  WiFiEventHandler wifiStaConnectHandler;
+  WiFiEventHandler wifiStaDisconnectHandler;
   Ticker wifiReconnectTimer;
 
   volatile boolean task_emoncms = false;
@@ -365,36 +365,6 @@ void onWifiStaDisconnect(const WiFiEventStationModeDisconnected& event) {
 }
 
 /* ======================================================================
-Function: onWifiApConnect
-Purpose : Connect to MQTT brocker when WiFi AP is UP
-Input   : event
-Output  : 
-Comments: Fire when the WiFi AP is connected
-====================================================================== */
-void onWifiApConnect(const WiFiEventSoftAPModeStationConnected event) {
- Debug("WiFi AP is UP, IP : ");
-  Debugln(WiFi.softAPIP());
-  #ifdef MOD_MQTT
-    connectToMqtt();
-  #endif
-}
-
-/* ======================================================================
-Function: onWifiApDisconnect
-Purpose : Suspend connection to MQTT brocker and restart the WiFi AP.
-Input   : event
-Output  : 
-Comments: Fire when the WiFi AP is disconnected
-====================================================================== */
-void onWifiApDisconnect(const WiFiEventSoftAPModeStationDisconnected event) {
-  Debugln("WiFi AP is down.");
-  #ifdef MOD_MQTT
-    mqttReconnectTimer.detach(); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
-  #endif
-  wifiReconnectTimer.once(2, WifiReConn);
-}
-
-/* ======================================================================
 Function: timeAgo
 Purpose : format total seconds to human readable text
 Input   : second
@@ -602,8 +572,6 @@ void mysetup()
     #ifdef MOD_MQTT
       wifiStaConnectHandler = WiFi.onStationModeGotIP(onWifiStaConnect);
       wifiStaDisconnectHandler = WiFi.onStationModeDisconnected(onWifiStaDisconnect);
-      wifiApConnectHandler = WiFi.onSoftAPModeStationConnected(onWifiApConnect);
-      wifiApDisconnectHandler = WiFi.onSoftAPModeStationDisconnected(onWifiApDisconnect);
     #endif
     WifiHandleConn(true);
 
