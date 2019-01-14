@@ -956,13 +956,31 @@ void handleFormConfig(AsyncWebServerRequest *request)
     }
 
     // MQTT
-    strncpy(config.mqtt.protocol, request->getParam("mqtt_protocol", true)->value().c_str(),   CFG_MQTT_PROTOCOL_SIZE);
-    strncpy(config.mqtt.host,     request->getParam("mqtt_host", true)->value().c_str(),       CFG_MQTT_HOST_SIZE);
-    strncpy(config.mqtt.user,     request->getParam("mqtt_user", true)->value().c_str(),       CFG_MQTT_USER_SIZE);
-    strncpy(config.mqtt.password, request->getParam("mqtt_password", true)->value().c_str(),   CFG_MQTT_PASSWORD_SIZE);
+    bool mqtt_update = false;
+    if (config.mqtt.protocol != request->getParam("mqtt_protocol", true)->value().c_str()) {
+      strncpy(config.mqtt.protocol, request->getParam("mqtt_protocol", true)->value().c_str(),   CFG_MQTT_PROTOCOL_SIZE);
+      mqtt_update = true;
+    }
+    if (config.mqtt.host != request->getParam("mqtt_host", true)->value().c_str()) {
+      strncpy(config.mqtt.host,     request->getParam("mqtt_host", true)->value().c_str(),       CFG_MQTT_HOST_SIZE);
+      mqtt_update = true;
+    }
+    if (config.mqtt.user != request->getParam("mqtt_user", true)->value().c_str()) {
+      strncpy(config.mqtt.user,     request->getParam("mqtt_user", true)->value().c_str(),       CFG_MQTT_USER_SIZE);
+      mqtt_update = true;
+    }
+    if (config.mqtt.password != request->getParam("mqtt_password", true)->value().c_str()) {
+      strncpy(config.mqtt.password, request->getParam("mqtt_password", true)->value().c_str(),   CFG_MQTT_PASSWORD_SIZE);
+      mqtt_update = true;
+    }
     itemp = request->getParam("mqtt_port", true)->value().toInt();
-    config.mqtt.port = (itemp>=0 && itemp<=65535) ? itemp : CFG_MQTT_DEFAULT_PORT ;
-
+    if (config.mqtt.port != itemp) {
+      config.mqtt.port = (itemp>=0 && itemp<=65535) ? itemp : CFG_MQTT_DEFAULT_PORT ;
+      mqtt_update = true;
+    }
+    if (mqtt_update) {
+      mqttClient.disconnect();
+    }
 
     if ( saveConfig() ) {
       ret = 200;

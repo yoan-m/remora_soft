@@ -563,11 +563,6 @@ void mysetup()
     rgb_brightness = config.led_bright;
     DebugF("RGB Brightness: "); Debugln(rgb_brightness);
 
-    #ifdef MOD_MQTT
-      // Initialisation du client mqtt
-      initMqtt();
-    #endif
-
     // Connection au Wifi ou Vérification
     #ifdef MOD_MQTT
       wifiStaConnectHandler = WiFi.onStationModeGotIP(onWifiStaConnect);
