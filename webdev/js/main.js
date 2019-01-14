@@ -271,6 +271,30 @@
         })
         .fail(function() { console.error( "error while requestiong spiffs data" );  })
       } else if (target == '#tab_cfg') {
+        // get system config MQTT //
+        var httpRequest = new XMLHttpRequest();
+        httpRequest.onreadystatechange = function(event) {
+          console.log("Get info");
+          if (this.readyState === XMLHttpRequest.DONE) {
+            if (this.status === 200) {
+              var system_info = JSON.parse(this.responseText);
+              system_info.forEach(function(element) {
+                if (element.na.search('Modules') != -1) {
+                  console.log(element.va);
+                  if (element.va.search('MQTT') == -1) {
+                    $('#pan_mqtt').hide();
+                  }
+                }
+              });
+            }
+            else {
+              console.log("Error get system info: %d (%s)", this.status, this.statusText);
+            }
+          }
+        };
+        httpRequest.open("GET", '/system.json');
+        httpRequest.send();
+        //
         ledBrightSlider = $("#cfg_led_bright").slider();
         $.getJSON( "/config.json", function(form_data) {
             $("#frm_config").autofill(form_data);

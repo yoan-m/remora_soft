@@ -303,7 +303,10 @@ void getSysJSONData(String & response)
     response += F("RFM69 ");
   #endif
   #ifdef MOD_ADPS
-    response += F("ADPS");
+    response += F("ADPS ");
+  #endif
+  #ifdef MOD_MQTT
+    response += F("MQTT");
   #endif
   response += "\"},\r\n";
 
@@ -365,8 +368,8 @@ void getSysJSONData(String & response)
     if      (fp=='E') response += "Eco";
     else if (fp=='A') response += "Arrêt";
     else if (fp=='H') response += "Hors Gel";
-    else if (fp=='1') response += "Eco - 1";
-    else if (fp=='2') response += "Eco - 2";
+    else if (fp=='1') response += "Confort - 1";
+    else if (fp=='2') response += "Confort - 2";
     else if (fp=='C') response += "Confort";
     response += "\"},\r\n";
   }
@@ -454,7 +457,7 @@ void getConfJSONData(String & r)
   r+=CFG_FORM_OTA_AUTH;  r+=FPSTR(FP_QCQ); r+=config.ota_auth;       r+= FPSTR(FP_QCNL);
   r+=CFG_FORM_OTA_PORT;  r+=FPSTR(FP_QCQ); r+=config.ota_port;       r+= FPSTR(FP_QCNL);
   r+=CFG_FORM_LED_BRIGHT; r+=FPSTR(FP_QCQ);
-    r+=map(config.led_bright, 0, 255, 0, 100);   r+= FPSTR(FP_QCNL);
+  r+=map(config.led_bright, 0, 255, 0, 100);   r+= FPSTR(FP_QCNL);
 
   r+=CFG_FORM_JDOM_HOST; r+=FPSTR(FP_QCQ); r+=config.jeedom.host;    r+= FPSTR(FP_QCNL);
   r+=CFG_FORM_JDOM_PORT; r+=FPSTR(FP_QCQ); r+=config.jeedom.port;    r+= FPSTR(FP_QCNL);
@@ -463,6 +466,12 @@ void getConfJSONData(String & r)
   r+=CFG_FORM_JDOM_ADCO; r+=FPSTR(FP_QCQ); r+=config.jeedom.adco;    r+= FPSTR(FP_QCNL);
   r+=CFG_FORM_JDOM_FING; r+=FPSTR(FP_QCQ); r+=getFingerPrint();      r+= FPSTR(FP_QCNL);
   r+=CFG_FORM_JDOM_FREQ; r+=FPSTR(FP_QCQ); r+=config.jeedom.freq;
+
+  r+=CFG_FORM_MQTT_PROTO; r+=FPSTR(FP_QCQ); r+=config.mqtt.protocol; r+= FPSTR(FP_QCNL);
+  r+=CFG_FORM_MQTT_HOST;  r+=FPSTR(FP_QCQ); r+=config.mqtt.host;     r+= FPSTR(FP_QCNL);
+  r+=CFG_FORM_MQTT_PORT;  r+=FPSTR(FP_QCQ); r+=config.mqtt.port;     r+= FPSTR(FP_QCNL);
+  r+=CFG_FORM_MQTT_USER;  r+=FPSTR(FP_QCQ); r+=config.mqtt.user;     r+= FPSTR(FP_QCNL);
+  r+=CFG_FORM_MQTT_PASS;  r+=FPSTR(FP_QCQ); r+=config.mqtt.password; r+= FPSTR(FP_QCNL);
 
   r+= F("\"");
   // Json end
@@ -934,7 +943,7 @@ void handleFormConfig(AsyncWebServerRequest *request)
 			itemp = request->getParam("jdom_port", true)->value().toInt();
 			config.jeedom.port = (itemp>=0 && itemp<=65535) ? itemp : CFG_JDOM_DEFAULT_PORT;
 		}
-   if (request->hasParam("jdom_freq", true)) {
+    if (request->hasParam("jdom_freq", true)) {
       itemp = request->getParam("jdom_freq", true)->value().toInt();
       if (itemp>0 && itemp<=86400){
         // Emoncms Update if needed
@@ -944,7 +953,16 @@ void handleFormConfig(AsyncWebServerRequest *request)
         itemp = 0 ;
       }
       config.jeedom.freq = itemp;
-   }
+    }
+
+    // MQTT
+    strncpy(config.mqtt.protocol, request->getParam("mqtt_protocol", true)->value().c_str(),   CFG_MQTT_PROTOCOL_SIZE);
+    strncpy(config.mqtt.host,     request->getParam("mqtt_host", true)->value().c_str(),       CFG_MQTT_HOST_SIZE);
+    strncpy(config.mqtt.user,     request->getParam("mqtt_user", true)->value().c_str(),       CFG_MQTT_USER_SIZE);
+    strncpy(config.mqtt.password, request->getParam("mqtt_password", true)->value().c_str(),   CFG_MQTT_PASSWORD_SIZE);
+    itemp = request->getParam("mqtt_port", true)->value().toInt();
+    config.mqtt.port = (itemp>=0 && itemp<=65535) ? itemp : CFG_MQTT_DEFAULT_PORT ;
+
 
     if ( saveConfig() ) {
       ret = 200;

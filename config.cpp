@@ -211,6 +211,14 @@ void showConfig()
   DebugF("freq     :"); Debugln(config.jeedom.freq);
   _wdt_feed();
 
+  DebuglnF("\r\n===== MQTT");
+  DebugF("host     :"); Debugln(config.mqtt.host);
+  DebugF("port     :"); Debugln(config.mqtt.port);
+  DebugF("protocol :"); Debugln(config.mqtt.protocol);
+  DebugF("user     :"); Debugln(config.mqtt.user);
+  Debugln();
+  _wdt_feed();
+
   DebugF("LED Bright: "); Debugln(config.led_bright);
 }
 
@@ -251,6 +259,13 @@ void resetConfig(void)
     config.jeedom.fingerprint[i] = 0;
   }
   config.jeedom.freq = 0;
+
+  // MQTT
+  strcpy_P(config.mqtt.protocol, CFG_MQTT_DEFAULT_PROTOCOL);
+  strcpy_P(config.mqtt.host, CFG_MQTT_DEFAULT_HOST);
+  config.mqtt.port = CFG_MQTT_DEFAULT_PORT;
+  strcpy_P(config.mqtt.user, "");
+  strcpy_P(config.mqtt.password, "");
 
   config.led_bright = DEFAULT_LED_BRIGHTNESS;
   config.config |= CFG_RGB_LED;

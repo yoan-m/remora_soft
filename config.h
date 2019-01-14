@@ -46,6 +46,14 @@
 #define CFG_JDOM_DEFAULT_URL       "/jeedom/plugins/teleinfo/core/php/jeeTeleinfo.php"
 #define CFG_JDOM_DEFAULT_ADCO      "000011112222"
 
+#define CFG_MQTT_PROTOCOL_SIZE     5
+#define CFG_MQTT_HOST_SIZE         32
+#define CFG_MQTT_USER_SIZE         32
+#define CFG_MQTT_PASSWORD_SIZE     32
+#define CFG_MQTT_DEFAULT_PROTOCOL "mqtt"
+#define CFG_MQTT_DEFAULT_HOST     "mqtt.local"
+#define CFG_MQTT_DEFAULT_PORT     1883
+
 #define DEFAULT_LED_BRIGHTNESS  50                // 50%
 
 // Port pour l'OTA
@@ -87,6 +95,12 @@
 #define CFG_FORM_JDOM_FREQ  FPSTR("jdom_freq")
 #define CFG_FORM_JDOM_FING  FPSTR("jdom_finger")
 
+#define CFG_FORM_MQTT_PROTO FPSTR("mqtt_protocol")
+#define CFG_FORM_MQTT_HOST  FPSTR("mqtt_host")
+#define CFG_FORM_MQTT_PORT  FPSTR("mqtt_port")
+#define CFG_FORM_MQTT_USER  FPSTR("mqtt_user")
+#define CFG_FORM_MQTT_PASS  FPSTR("mqtt_password")
+
 #define CFG_FORM_LED_BRIGHT FPSTR("cfg_led_bright");
 
 #define CFG_FORM_IP  FPSTR("wifi_ip");
@@ -123,6 +137,19 @@ typedef struct
   uint8_t  filler[70];                              // in case adding data in config avoiding loosing current conf by bad crc*/
 } _jeedom;
 
+// Config for MQTT
+//
+typedef struct
+{
+  char     host[CFG_MQTT_HOST_SIZE+1];         // FQDN or ip
+  char     protocol[CFG_MQTT_PROTOCOL_SIZE+1]; // Protocol (mqtt or mqtts)
+  char     user[CFG_MQTT_USER_SIZE+1];         // User
+  char     password[CFG_MQTT_PASSWORD_SIZE+1]; // Password
+  uint16_t port;                               // Port
+  uint8_t  filler[21];                         // in case adding data in config avoiding loosing current conf by bad crc*/
+} _mqtt;
+
+
 // Config saved into eeprom
 // 1024 bytes total including CRC
 typedef struct
@@ -139,7 +166,8 @@ typedef struct
   uint8_t  filler[128];      		   // in case adding data in config avoiding loosing current conf by bad crc
   _emoncms emoncms;                // Emoncms configuration
   _jeedom  jeedom;                 // jeedom configuration
-  uint8_t  filler1[256];           // Another filler in case we need more
+  _mqtt    mqtt;                   // MQTT configuration
+  uint8_t  filler1[128];           // Another filler in case we need more
   uint16_t crc;
 } _Config;
 

@@ -119,6 +119,7 @@ return[
     {"na":"Uptime","va":((Date.now()-startTime)/1000).toFixed(0)},
     {"na":"Firmware Version","va":"1.0"},
     {"na":"Compile le","va":"Feb 28 2016 04:35:12"},
+    {"na":"Installed Modules","va":"TELEINFO MQTT"},
     {"na":"SDK Version","va":"1.5.1(e67da894)"},
     {"na":"Chip ID","va":"0x115F0B"},
     {"na":"Boot Version","va":"0x1F"},
