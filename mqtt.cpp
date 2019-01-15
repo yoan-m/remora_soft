@@ -139,13 +139,9 @@ void initMqtt(void) {
   mqttClient.onMessage(onMqttMessage);
   mqttClient.onPublish(onMqttPublish);
   #ifdef MOD_MQTT
-    #if(defined MQTT_HOST && defined MQTT_PORT)
-      mqttClient.setServer(MQTT_HOST, MQTT_PORT);
-    #else
-      if (config.mqtt.host != "" && config.mqtt.port > 0) {
-        mqttClient.setServer(config.mqtt.host, config.mqtt.port);
-      }
-    #endif
+    if (config.mqtt.host != "" && config.mqtt.port > 0) {
+      mqttClient.setServer(config.mqtt.host, config.mqtt.port);
+    }
     if (config.mqtt.user != "" && config.mqtt.password != "") {
       mqttClient.setCredentials(config.mqtt.user, config.mqtt.password);
     }

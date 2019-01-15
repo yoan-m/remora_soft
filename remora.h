@@ -97,11 +97,6 @@
   #define DEFAULT_OTA_PASS  "Remora_OTA"
   #define DEFAULT_HOSTNAME  "remora"
   // =====================================
-  #ifdef MOD_MQTT
-    #define MQTT_HOST IPAddress(X, X, X, X)
-    #define MQTT_PORT 1883
-  #endif
-  // =====================================
   #include "Arduino.h"
   #include <EEPROM.h>
   #include <FS.h>
