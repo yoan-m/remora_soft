@@ -465,13 +465,13 @@ void getConfJSONData(String & r)
   r+=CFG_FORM_JDOM_KEY;  r+=FPSTR(FP_QCQ); r+=config.jeedom.apikey;  r+= FPSTR(FP_QCNL);
   r+=CFG_FORM_JDOM_ADCO; r+=FPSTR(FP_QCQ); r+=config.jeedom.adco;    r+= FPSTR(FP_QCNL);
   r+=CFG_FORM_JDOM_FING; r+=FPSTR(FP_QCQ); r+=getFingerPrint();      r+= FPSTR(FP_QCNL);
-  r+=CFG_FORM_JDOM_FREQ; r+=FPSTR(FP_QCQ); r+=config.jeedom.freq;
+  r+=CFG_FORM_JDOM_FREQ; r+=FPSTR(FP_QCQ); r+=config.jeedom.freq;    r+= FPSTR(FP_QCNL);
 
   r+=CFG_FORM_MQTT_PROTO; r+=FPSTR(FP_QCQ); r+=config.mqtt.protocol; r+= FPSTR(FP_QCNL);
   r+=CFG_FORM_MQTT_HOST;  r+=FPSTR(FP_QCQ); r+=config.mqtt.host;     r+= FPSTR(FP_QCNL);
   r+=CFG_FORM_MQTT_PORT;  r+=FPSTR(FP_QCQ); r+=config.mqtt.port;     r+= FPSTR(FP_QCNL);
   r+=CFG_FORM_MQTT_USER;  r+=FPSTR(FP_QCQ); r+=config.mqtt.user;     r+= FPSTR(FP_QCNL);
-  r+=CFG_FORM_MQTT_PASS;  r+=FPSTR(FP_QCQ); r+=config.mqtt.password; r+= FPSTR(FP_QCNL);
+  r+=CFG_FORM_MQTT_PASS;  r+=FPSTR(FP_QCQ); r+=config.mqtt.password;
 
   r+= F("\"");
   // Json end

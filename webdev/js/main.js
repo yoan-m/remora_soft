@@ -312,7 +312,10 @@
               });
             }
           })
-          .fail(function() { console.error( "error while requestiong configuration data" ); });
+          .fail(function(jqxhr, textStatus, error) {
+            var err = textStatus + ", " + error;
+            console.error( "error while requestiong configuration data: " + err );
+          });
         $('#tab_scan_data').bootstrapTable('refresh',{silent:true, showLoading:true, url:'/wifiscan.json'});
       }
       // Onglet de gestion des zones

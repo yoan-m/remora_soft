@@ -16,6 +16,7 @@
 
 AsyncMqttClient mqttClient;
 Ticker mqttReconnectTimer;
+int nbRestart = 0;
 
 void connectToMqtt() {
   Debugln("Connection au broker MQTT...");
@@ -27,22 +28,32 @@ void onMqttConnect(bool sessionPresent) {
   Debugln("Connecté au broker MQTT");
   Debug("Session : ");
   Debugln(sessionPresent);
+  if (sessionPresent)
+    nbRestart = 0;
 
   // subscribe au topic setFP
   uint16_t packetIdSub = mqttClient.subscribe(MQTT_TOPIC_SET, 2);
   Debug("Subscribing at QoS 2, packetId: ");
   Debugln(packetIdSub);
 
- mqttClient.publish(MQTT_TOPIC_FP, 2, true, "{\"FP\":\"UP\"}");
- mqttClient.publish(MQTT_TOPIC_RELAIS, 2, true, "{\"RELAIS\":\"UP\"}");
+  mqttClient.publish(MQTT_TOPIC_FP, 2, true, "{\"FP\":\"UP\"}");
+  mqttClient.publish(MQTT_TOPIC_RELAIS, 2, true, "{\"RELAIS\":\"UP\"}");
 }
 
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
-  DebugF("Déconnection du broker MQTT.");
+  Debugln("Déconnection du broker MQTT.");
 
   if (WiFi.isConnected()) {
-    mqttReconnectTimer.once(2, connectToMqtt);
+    if (nbRestart < 2)
+      mqttReconnectTimer.once(2, connectToMqtt);
+    else if (nbRestart < 5)
+      mqttReconnectTimer.once(10, connectToMqtt);
+    else if (nbRestart < 10)
+      mqttReconnectTimer.once(30, connectToMqtt);
+    else
+      mqttReconnectTimer.once(60, connectToMqtt);
   }
+  nbRestart++;
 }
 
 void onMqttSubscribe(uint16_t packetId, uint8_t qos) {
@@ -81,36 +92,36 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
   if ( len == 2 && message.startsWith("FP") ) {
     String message = String("FP=" + String(etatFP));
     char message_send[] = "";
-    message.toCharArray(message_send, message.length()+1);
+    message.toCharArray(message_send, message.length() + 1);
     Debug("message_send = ");
     Debugln(message_send);
-    if ( mqttClient.publish(MQTT_TOPIC_FP, 2, true, message_send)  == 0 ) {
+    if (mqttClient.publish(MQTT_TOPIC_FP, 2, true, message_send)  == 0) {
       Debugf("Mqtt : Erreur publish FP2\n");
     }
   }
-  else if ( len == 5 && message.startsWith("FP=") ) {
+  else if (len == 5 && message.startsWith("FP=")) {
     message.remove(len);
-    message.remove(0 ,3);
+    message.remove(0, 3);
     Debug("message = ");
     Debugln(message);
     setfp(message);
   }
-  else if ( len == 11 && message.startsWith("FPS=") ) {
+  else if (len == 11 && message.startsWith("FPS=")) {
     message.remove(len);
-    message.remove(0 ,4);
+    message.remove(0, 4);
     Debug("message = ");
     Debugln(message);
     fp(message);
   }
-  else if ( len == 3 && message.startsWith("R=") ) {
+  else if (len == 3 && message.startsWith("R=")) {
     message.remove(len);
-    message.remove(0 ,2);
+    message.remove(0, 2);
     Debug("message = ");
     Debugln(message);
     fnct_relais(message);
   }
   else {
-      Debugln("Mqtt: Bad payload");
+    Debugln("Mqtt: Bad payload");
   }
 }
 
@@ -127,19 +138,19 @@ void initMqtt(void) {
   mqttClient.onUnsubscribe(onMqttUnsubscribe);
   mqttClient.onMessage(onMqttMessage);
   mqttClient.onPublish(onMqttPublish);
-  #if(defined MQTT_HOST && defined MQTT_PORT)
-    mqttClient.setServer(MQTT_HOST, MQTT_PORT);
-  #else
-    if (*config.mqtt.host && config.mqtt.port) {
-      mqttClient.setServer(config.mqtt.host, config.mqtt.port);
-    }
-  #endif
+#if(defined MQTT_HOST && defined MQTT_PORT)
+  mqttClient.setServer(MQTT_HOST, MQTT_PORT);
+#else
+  if (config.mqtt.host != "" && config.mqtt.port > 0) {
+    mqttClient.setServer(config.mqtt.host, config.mqtt.port);
+  }
+#endif
   if (config.mqtt.user != "" && config.mqtt.password != "") {
     mqttClient.setCredentials(config.mqtt.user, config.mqtt.password);
   }
-  #if ASYNC_TCP_SSL_ENABLED
-    if (config.mqtt.protocol == "mqtts") {
-      mqttClient.setSecure(true);
-    }
-  #endif
+#if ASYNC_TCP_SSL_ENABLED
+  if (config.mqtt.protocol == "mqtts") {
+    mqttClient.setSecure(true);
+  }
+#endif
 }
