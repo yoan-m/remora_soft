@@ -187,6 +187,11 @@ void showConfig()
   if (config.config & CFG_LCD)     DebugF(" LCD");
   _wdt_feed();
 
+  DebuglnF("\r\n===== Compteur");
+  DebugF("Modèle   :"); Debugln(config.compteur_modele);
+  DebugF("TIC      :"); Debugln(config.compteur_tic);
+  _wdt_feed();
+
   DebuglnF("\r\n===== Emoncms");
   DebugF("host     :"); Debugln(config.emoncms.host);
   DebugF("port     :"); Debugln(config.emoncms.port);
@@ -232,6 +237,10 @@ void resetConfig(void)
   config.ota_port = DEFAULT_OTA_PORT ;
 
   // Add other init default config here
+  
+  // Compteur
+  strcpy_P(config.compteur_modele, CFG_COMPTEUR_DEFAULT_MODELE);
+  strcpy_P(config.compteur_tic, CFG_COMPTEUR_DEFAULT_TIC);
 
   // Emoncms
   strcpy_P(config.emoncms.host, CFG_EMON_DEFAULT_HOST);

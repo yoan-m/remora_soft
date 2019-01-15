@@ -233,10 +233,11 @@ bool tinfo_setup(bool wait_data)
   Debug("Initializing Teleinfo...");
   Debugflush();
 
-  #if (defined SPARK && defined LINKY)
-    Serial1.begin(9600);  // Port série RX/TX on serial1 for Spark
-  #elif (defined SPARK)
-    Serial1.begin(1200);  // Port série RX/TX on serial1 for Spark
+  #ifdef SPARK
+    if (config.compteur_modele == "linky")
+      Serial1.begin(9600);  // Port série RX/TX on serial1 for Spark
+    else
+      Serial1.begin(1200);  // Port série RX/TX on serial1 for Spark
   #endif
 
   // reset du timeout de detection de la teleinfo
