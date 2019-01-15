@@ -470,7 +470,7 @@ void mysetup()
     // Init de la téléinformation
     #if (defined MOD_TELEINFO && defined LINKY)
       Serial.begin(9600, SERIAL_7E1);
-    #else
+    #elif (defined MOD_TELEINFO)
       Serial.begin(1200, SERIAL_7E1);
     #endif
 

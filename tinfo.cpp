@@ -235,7 +235,7 @@ bool tinfo_setup(bool wait_data)
 
   #if (defined SPARK && defined LINKY)
     Serial1.begin(9600);  // Port série RX/TX on serial1 for Spark
-  #else
+  #elif (defined SPARK)
     Serial1.begin(1200);  // Port série RX/TX on serial1 for Spark
   #endif
 
