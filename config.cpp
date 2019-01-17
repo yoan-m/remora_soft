@@ -109,6 +109,12 @@ bool readConfig (bool clear_on_error)
 		return false;
 	}
 
+  // Check the config for new elements Compteur
+  if (config.compteur_modele[0] == '\0')
+    strcpy_P(config.compteur_modele, CFG_COMPTEUR_DEFAULT_MODELE);
+  if (config.compteur_tic[0] == '\0')
+    strcpy_P(config.compteur_tic, CFG_COMPTEUR_DEFAULT_TIC);
+
 	return true ;
 }
 
