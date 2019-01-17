@@ -140,12 +140,12 @@ typedef struct
   char host[CFG_HOSTNAME_SIZE+1];                   // Hostname
   char ap_psk[CFG_PSK_SIZE+1];                      // Access Point Pre shared key
   char ota_auth[CFG_PSK_SIZE+1];                    // OTA Authentication password
-  char compteur_modele[CFG_COMPTEUR_MODELE_SIZE+1]; // Modele de compteur
-  char compteur_tic[CFG_COMPTEUR_TIC_SIZE+1];       // TIC mode
   uint32_t config;           		                    // Bit field register
   uint16_t ota_port;         		                    // OTA port
   uint8_t  led_bright;                              // RGB Led brightness 0-255
   uint16_t oled_type;                               // Display OLED type (1306 or 1106)
+  char compteur_modele[CFG_COMPTEUR_MODELE_SIZE+1]; // Modele de compteur
+  char compteur_tic[CFG_COMPTEUR_TIC_SIZE+1];       // TIC mode
   uint8_t  filler[104];      		                    // in case adding data in config avoiding loosing current conf by bad crc
   _emoncms emoncms;                                 // Emoncms configuration
   _jeedom  jeedom;                                  // jeedom configuration
