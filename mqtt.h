@@ -45,5 +45,6 @@ void onMqttUnsubscribe(uint16_t packetId);
 void onMqttMessage(char*, char*, AsyncMqttClientMessageProperties, size_t, size_t, size_t);
 void onMqttPublish(uint16_t);
 void initMqtt(void);
+void disconnectMqtt(void);
 
 #endif

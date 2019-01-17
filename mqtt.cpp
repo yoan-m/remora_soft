@@ -14,6 +14,7 @@
 
 #include "mqtt.h"
 
+#ifdef MOD_MQTT
 AsyncMqttClient mqttClient;
 Ticker mqttReconnectTimer;
 int nbRestart = 0;
@@ -22,6 +23,12 @@ void connectToMqtt() {
   Debugln("Connection au broker MQTT...");
   initMqtt();
   mqttClient.connect();
+}
+
+void disconnectMqtt() {
+  mqttClient.disconnect(false);
+  if (mqttClient.connected())
+    mqttClient.disconnect(true);
 }
 
 void onMqttConnect(bool sessionPresent) {
@@ -138,17 +145,16 @@ void initMqtt(void) {
   mqttClient.onUnsubscribe(onMqttUnsubscribe);
   mqttClient.onMessage(onMqttMessage);
   mqttClient.onPublish(onMqttPublish);
-  #ifdef MOD_MQTT
-    if (config.mqtt.host != "" && config.mqtt.port > 0) {
-      mqttClient.setServer(config.mqtt.host, config.mqtt.port);
+  if (config.mqtt.host != "" && config.mqtt.port > 0) {
+    mqttClient.setServer(config.mqtt.host, config.mqtt.port);
+  }
+  if (config.mqtt.user != "" && config.mqtt.password != "") {
+    mqttClient.setCredentials(config.mqtt.user, config.mqtt.password);
+  }
+  #if ASYNC_TCP_SSL_ENABLED
+    if (config.mqtt.protocol == "mqtts") {
+      mqttClient.setSecure(true);
     }
-    if (config.mqtt.user != "" && config.mqtt.password != "") {
-      mqttClient.setCredentials(config.mqtt.user, config.mqtt.password);
-    }
-    #if ASYNC_TCP_SSL_ENABLED
-      if (config.mqtt.protocol == "mqtts") {
-        mqttClient.setSecure(true);
-      }
-    #endif
   #endif
 }
+#endif // #ifdef MOD_MQTT

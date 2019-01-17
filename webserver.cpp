@@ -966,6 +966,7 @@ void handleFormConfig(AsyncWebServerRequest *request)
       strncpy(config.mqtt.password, request->getParam("mqtt_password", true)->value().c_str(),   CFG_MQTT_PASSWORD_SIZE);
       itemp = request->getParam("mqtt_port", true)->value().toInt();
       config.mqtt.port = (itemp>=0 && itemp<=65535) ? itemp : CFG_MQTT_DEFAULT_PORT ;
+      disconnectMqtt();
     #endif
 
     if ( saveConfig() ) {
