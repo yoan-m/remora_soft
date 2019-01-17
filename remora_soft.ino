@@ -522,6 +522,9 @@ void mysetup()
     DebugF("Config size="); Debug(sizeof(_Config));
     DebugF(" (emoncms=");   Debug(sizeof(_emoncms));
     DebugF("  jeedom=");   Debug(sizeof(_jeedom));
+    #ifdef MOD_MQTT
+      DebugF("  mqtt=");   Debug(sizeof(_mqtt));
+    #endif
     Debugln(')');
     Debugflush();
 

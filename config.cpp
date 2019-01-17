@@ -109,6 +109,16 @@ bool readConfig (bool clear_on_error)
 		return false;
 	}
 
+  // Check the config for new elements MQTT
+  #ifdef MOD_MQTT
+    if (config.mqtt.protocol[0] == '\0')
+      strcpy_P(config.mqtt.protocol, CFG_MQTT_DEFAULT_PROTOCOL);
+    if (config.mqtt.host[0] == '\0')
+      strcpy_P(config.mqtt.host, CFG_MQTT_DEFAULT_HOST);
+    if (config.mqtt.port == 0)
+      config.mqtt.port = CFG_MQTT_DEFAULT_PORT;
+  #endif
+
 	return true ;
 }
 
