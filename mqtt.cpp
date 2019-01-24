@@ -97,7 +97,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
   String message = String(payload);
 
   if ( len == 2 && message.startsWith("FP") ) {
-    String message = String("FP=" + String(etatFP));
+    String message = String("{\"FP\":\"" + String(etatFP) + "\"}");
     char message_send[] = "";
     message.toCharArray(message_send, message.length() + 1);
     Debug("message_send = ");
