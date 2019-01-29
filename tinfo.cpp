@@ -234,10 +234,14 @@ bool tinfo_setup(bool wait_data)
   Debugflush();
 
   #ifdef SPARK
-    if (config.compteur_modele == "linky")
+    if (strcmp(config.compteur_modele, "linky")) {
+      Debugln("Compteur linky : Serial 9600 bps");
       Serial1.begin(9600);  // Port série RX/TX on serial1 for Spark
-    else
+    }
+    else{
+      Debugln("Compteur électronique : Serial 1200 bps");
       Serial1.begin(1200);  // Port série RX/TX on serial1 for Spark
+    }
   #endif
 
   // reset du timeout de detection de la teleinfo

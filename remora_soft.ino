@@ -469,10 +469,13 @@ void mysetup()
 
     // Init de la téléinformation
     #ifdef MOD_TELEINFO
-      if (config.compteur_modele == "linky") 
+      if (strcmp(config.compteur_modele, "linky")) {
+        Debugln("Compteur linky : Serial 9600 bps");
         Serial.begin(9600, SERIAL_7E1);
-      else
+      else {
+        Debugln("Compteur électronique : Serial 1200 bps");
         Serial.begin(1200, SERIAL_7E1);
+      }
     #endif
 
     // Clear our global flags
