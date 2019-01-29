@@ -46,5 +46,6 @@ void onMqttMessage(char*, char*, AsyncMqttClientMessageProperties, size_t, size_
 void onMqttPublish(uint16_t);
 void initMqtt(void);
 void disconnectMqtt(void);
+bool mqttIsConnected(void);
 
 #endif

@@ -111,12 +111,16 @@ bool readConfig (bool clear_on_error)
 
   // Check the config for new elements MQTT
   #ifdef MOD_MQTT
+    if (config.mqtt.isActivated != true || config.mqtt.isActivated != false)
+      config.mqtt.isActivated = CFG_MQTT_DEFAULT_ACTIVATED;
     if (config.mqtt.protocol[0] == '\0')
       strcpy_P(config.mqtt.protocol, CFG_MQTT_DEFAULT_PROTOCOL);
     if (config.mqtt.host[0] == '\0')
       strcpy_P(config.mqtt.host, CFG_MQTT_DEFAULT_HOST);
     if (config.mqtt.port == 0)
       config.mqtt.port = CFG_MQTT_DEFAULT_PORT;
+    if (config.mqtt.hasAuth != true || config.mqtt.hasAuth != false)
+      config.mqtt.hasAuth = CFG_MQTT_DEFAULT_AUTH;
   #endif
 
 	return true ;
@@ -223,10 +227,12 @@ void showConfig()
 
   #ifdef MOD_MQTT
     DebuglnF("\r\n===== MQTT");
-    DebugF("host     :"); Debugln(config.mqtt.host);
-    DebugF("port     :"); Debugln(config.mqtt.port);
-    DebugF("protocol :"); Debugln(config.mqtt.protocol);
-    DebugF("user     :"); Debugln(config.mqtt.user);
+    DebugF("IsActivated :"); Debugln(config.mqtt.isActivated);
+    DebugF("host        :"); Debugln(config.mqtt.host);
+    DebugF("port        :"); Debugln(config.mqtt.port);
+    DebugF("protocol    :"); Debugln(config.mqtt.protocol);
+    DebugF("HasAuth     :"); Debugln(config.mqtt.hasAuth);
+    DebugF("user        :"); Debugln(config.mqtt.user);
     Debugln();
     _wdt_feed();
   #endif
@@ -274,9 +280,11 @@ void resetConfig(void)
 
   // MQTT
   #ifdef MOD_MQTT
+    config.mqtt.isActivated == CFG_MQTT_DEFAULT_ACTIVATED;
     strcpy_P(config.mqtt.protocol, CFG_MQTT_DEFAULT_PROTOCOL);
     strcpy_P(config.mqtt.host, CFG_MQTT_DEFAULT_HOST);
     config.mqtt.port = CFG_MQTT_DEFAULT_PORT;
+    config.mqtt.hasAuth == CFG_MQTT_DEFAULT_AUTH;
     strcpy_P(config.mqtt.user, "");
     strcpy_P(config.mqtt.password, "");
   #endif

@@ -144,16 +144,18 @@ int setfp(String command)
   }
 
   #ifdef MOD_MQTT
-    String message = String("{\"FP\":\"" + String(etatFP) + "\"}");
-    if ( lastMqttMessageFP != message ) {
-      char message_send[] = "";
-      message.toCharArray(message_send, message.length()+1);
-      Debug("message_send = ");
-      Debugln(message_send);
-      if ( mqttClient.publish(MQTT_TOPIC_FP, 2, false, message_send)  == 0 ) {
-        Debugf("Mqtt : Erreur publish FP1\n");
+    if (config.mqtt.isActivated && mqttIsConnected()) {
+      String message = String("{\"FP\":\"" + String(etatFP) + "\"}");
+      if ( lastMqttMessageFP != message ) {
+        char message_send[] = "";
+        message.toCharArray(message_send, message.length()+1);
+        Debug("message_send = ");
+        Debugln(message_send);
+        if ( mqttClient.publish(MQTT_TOPIC_FP, 2, false, message_send)  == 0 ) {
+          Debugf("Mqtt : Erreur publish FP1\n");
+        }
+        lastMqttMessageFP = message;
       }
-      lastMqttMessageFP = message;
     }
   #endif
 
@@ -378,16 +380,18 @@ int relais(String command)
   #endif
     
   #ifdef MOD_MQTT
-    String message = String("{\"Mode\":\"" + String(fnctRelais) + "\",\"Etat\":\"" + String(cmd) + "\"}");
-    if ( lastMqttMessageRelais != message ) {
-      char message_send[] = "";
-      message.toCharArray(message_send, message.length()+1);
-      Debug("message_send = ");
-      Debugln(message_send);
-      if ( mqttClient.publish(MQTT_TOPIC_RELAIS, 2, false, message_send)  == 0 ) {
-        Debugf("Mqtt : Erreur publish Relais1\n");
+    if (config.mqtt.isActivated && mqttIsConnected()) {
+      String message = String("{\"Mode\":\"" + String(fnctRelais) + "\",\"Etat\":\"" + String(cmd) + "\"}");
+      if ( lastMqttMessageRelais != message ) {
+        char message_send[] = "";
+        message.toCharArray(message_send, message.length()+1);
+        Debug("message_send = ");
+        Debugln(message_send);
+        if ( mqttClient.publish(MQTT_TOPIC_RELAIS, 2, true, message_send)  == 0 ) {
+          Debugf("Mqtt : Erreur publish Relais1\n");
+        }
+        lastMqttMessageRelais = message;
       }
-      lastMqttMessageRelais = message;
     }
   #endif
 

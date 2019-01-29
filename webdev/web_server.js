@@ -51,6 +51,13 @@ var config = {
     "ap_psk": "",
     "ota_auth": "WifInfo_8266",
     "ota_port": "8266",
+    "mqtt_isActivated": 0,
+    "mqtt_protocol": "mqtt",
+    "mqtt_host": "mqtt.local",
+    "mqtt_port": 1883,
+    "mqtt_hasAuth": 0,
+    "mqtt_user": "",
+    "mqtt_password": "",
 };
 /*
 "domz_host":"domoticz.local",

@@ -31,6 +31,10 @@ void disconnectMqtt() {
     mqttClient.disconnect(true);
 }
 
+bool mqttIsConnected() {
+  return mqttClient.connected();
+}
+
 void onMqttConnect(bool sessionPresent) {
   Debugln("Connecté au broker MQTT");
   Debug("Session : ");
@@ -50,7 +54,7 @@ void onMqttConnect(bool sessionPresent) {
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
   Debugln("Déconnection du broker MQTT.");
 
-  if (WiFi.isConnected()) {
+  if (WiFi.isConnected() && config.mqtt.isActivated) {
     if (nbRestart < 2)
       mqttReconnectTimer.once(2, connectToMqtt);
     else if (nbRestart < 5)

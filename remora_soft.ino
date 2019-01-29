@@ -345,7 +345,8 @@ void onWifiStaConnect(const WiFiEventStationModeGotIP& event) {
   Debug("Connecté au WiFi STA, IP : ");
   Debugln(WiFi.localIP());
   #ifdef MOD_MQTT
-    connectToMqtt();
+    if (config.mqtt.isActivated)
+      connectToMqtt();
   #endif
 }
 

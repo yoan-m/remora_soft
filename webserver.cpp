@@ -27,6 +27,8 @@ const char FP_JSON_START[] PROGMEM = "{\r\n";
 const char FP_JSON_END[] PROGMEM = "\r\n}\r\n";
 const char FP_QCQ[] PROGMEM = "\":\"";
 const char FP_QCNL[] PROGMEM = "\",\r\n\"";
+const char FP_QCB[] PROGMEM = "\":";
+const char FP_BNL[] PROGMEM = ",\r\n\"";
 const char FP_RESTART[] PROGMEM = "OK, Redémarrage en cours\r\n";
 const char FP_NL[] PROGMEM = "\r\n";
 
@@ -469,11 +471,13 @@ void getConfJSONData(String & r)
 
   #ifdef MOD_MQTT
     r+= FPSTR(FP_QCNL);
-    r+=CFG_FORM_MQTT_PROTO; r+=FPSTR(FP_QCQ); r+=config.mqtt.protocol; r+= FPSTR(FP_QCNL);
-    r+=CFG_FORM_MQTT_HOST;  r+=FPSTR(FP_QCQ); r+=config.mqtt.host;     r+= FPSTR(FP_QCNL);
-    r+=CFG_FORM_MQTT_PORT;  r+=FPSTR(FP_QCQ); r+=config.mqtt.port;     r+= FPSTR(FP_QCNL);
-    r+=CFG_FORM_MQTT_USER;  r+=FPSTR(FP_QCQ); r+=config.mqtt.user;     r+= FPSTR(FP_QCNL);
-    r+=CFG_FORM_MQTT_PASS;  r+=FPSTR(FP_QCQ); r+=config.mqtt.password;
+    r+=CFG_FORM_MQTT_ACTIVATED; r+=FPSTR(FP_QCB); r+=config.mqtt.isActivated; r+= FPSTR(FP_BNL);
+    r+=CFG_FORM_MQTT_PROTO;     r+=FPSTR(FP_QCQ); r+=config.mqtt.protocol;    r+= FPSTR(FP_QCNL);
+    r+=CFG_FORM_MQTT_HOST;      r+=FPSTR(FP_QCQ); r+=config.mqtt.host;        r+= FPSTR(FP_QCNL);
+    r+=CFG_FORM_MQTT_PORT;      r+=FPSTR(FP_QCQ); r+=config.mqtt.port;        r+= FPSTR(FP_QCNL);
+    r+=CFG_FORM_MQTT_AUTH;      r+=FPSTR(FP_QCB); r+=config.mqtt.hasAuth;     r+= FPSTR(FP_BNL);
+    r+=CFG_FORM_MQTT_USER;      r+=FPSTR(FP_QCQ); r+=config.mqtt.user;        r+= FPSTR(FP_QCNL);
+    r+=CFG_FORM_MQTT_PASS;      r+=FPSTR(FP_QCQ); r+=config.mqtt.password;
   #endif
 
   r+= F("\"");
@@ -960,13 +964,26 @@ void handleFormConfig(AsyncWebServerRequest *request)
 
     // MQTT
     #ifdef MOD_MQTT
+      if (request->getParam("mqtt_isActivated", true)->value().c_str() == "true")
+        config.mqtt.isActivated = true;
+      else if (request->getParam("mqtt_isActivated", true)->value().c_str() == "false")
+        config.mqtt.isActivated = false;
       strncpy(config.mqtt.protocol, request->getParam("mqtt_protocol", true)->value().c_str(),   CFG_MQTT_PROTOCOL_SIZE);
       strncpy(config.mqtt.host,     request->getParam("mqtt_host", true)->value().c_str(),       CFG_MQTT_HOST_SIZE);
+      if (request->getParam("mqtt_hasAuth", true)->value().c_str() == "true")
+        config.mqtt.hasAuth = true;
+      else if (request->getParam("mqtt_hasAuth", true)->value().c_str() == "false")
+        config.mqtt.hasAuth = false;
       strncpy(config.mqtt.user,     request->getParam("mqtt_user", true)->value().c_str(),       CFG_MQTT_USER_SIZE);
       strncpy(config.mqtt.password, request->getParam("mqtt_password", true)->value().c_str(),   CFG_MQTT_PASSWORD_SIZE);
       itemp = request->getParam("mqtt_port", true)->value().toInt();
       config.mqtt.port = (itemp>=0 && itemp<=65535) ? itemp : CFG_MQTT_DEFAULT_PORT ;
-      disconnectMqtt();
+
+      if (mqttIsConnected())
+        disconnectMqtt();
+
+      if (config.mqtt.isActivated && !mqttIsConnected())
+        connectToMqtt();
     #endif
 
     if ( saveConfig() ) {

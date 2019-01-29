@@ -414,6 +414,13 @@
                   <div class="panel-collapse collapse out" id="col_mqtt">
                     <div class="panel-body">
                       <div class="form-group row">
+                        <label class="col-sm-3 control-label">Activation</label>
+                        <div class="col-sm-9">
+                          <input type="checkbox" id="mqtt_isActivated" name="mqtt_isActivated" value="">
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
                         <label class="col-sm-3 control-label">Protocole</label>
                         <div class="col-sm-9">
                           <select id="mqtt_protocol" name="mqtt_protocol" class="form-control col-sm-2">
@@ -435,6 +442,12 @@
                           <p><strong>Port</strong></p>
                         </div><div class="col-sm-9">
                           <input type="number" class="form-control" id="mqtt_port" name="mqtt_port" maxlength="5" value="" placeholder="Port">
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-3 control-label">Authentification</label>
+                        <div class="col-sm-9">
+                          <input type="checkbox" id="mqtt_hasAuth" name="mqtt_hasAuth" value="">
                         </div>
                       </div>
                       <div class="form-group row">
