@@ -43,8 +43,8 @@ void onMqttConnect(bool sessionPresent) {
   Debug("Subscribing at QoS 2, packetId: ");
   Debugln(packetIdSub);
 
-  mqttClient.publish(MQTT_TOPIC_FP, 2, true, "{\"FP\":\"UP\"}");
-  mqttClient.publish(MQTT_TOPIC_RELAIS, 2, true, "{\"RELAIS\":\"UP\"}");
+  mqttClient.publish(MQTT_TOPIC_FP, 2, false, "{\"FP\":\"UP\"}");
+  mqttClient.publish(MQTT_TOPIC_RELAIS, 2, false, "{\"RELAIS\":\"UP\"}");
 }
 
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
@@ -102,7 +102,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
     message.toCharArray(message_send, message.length() + 1);
     Debug("message_send = ");
     Debugln(message_send);
-    if (mqttClient.publish(MQTT_TOPIC_FP, 2, true, message_send)  == 0) {
+    if (mqttClient.publish(MQTT_TOPIC_FP, 2, false, message_send)  == 0) {
       Debugf("Mqtt : Erreur publish FP2\n");
     }
   }
