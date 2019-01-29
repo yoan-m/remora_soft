@@ -122,7 +122,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
     message.remove(0, 4);
     Debug("message = ");
     Debugln(message);
-    fp(message);
+    setfp(message);
   }
   else if (len == 3 && message.startsWith("R=")) {
     message.remove(len);
