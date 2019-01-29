@@ -1160,7 +1160,7 @@ void handleNotFound(AsyncWebServerRequest *request)
     // http://ip_remora/?fp=CMD
     if ( request->hasParam("fp") ) {
       String value = request->getParam("fp")->value();
-      error += fp(value);
+      error += setfp(value);
     }
 
     // http://ip_remora/?relais=n

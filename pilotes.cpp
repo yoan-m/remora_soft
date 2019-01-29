@@ -62,6 +62,7 @@ int setfp(String command)
 
   int returnValue = -1;
 
+  // curl http://192.168.1.201?setfp=1
   // Vérifier que l'on demande l'état d'un seul fil pilote
   if (command.length() == 1)
   {
@@ -72,6 +73,7 @@ int setfp(String command)
     if (fp >= 1 && fp <= NB_FILS_PILOTES)
       returnValue = (etatFP[fp-1])  ;
   }
+  // curl http://192.168.1.201?setfp=1a
   else if (command.length() == 2)
   {
     // numéro du fil pilote concerné, avec conversion ASCII > entier
@@ -97,6 +99,64 @@ int setfp(String command)
       }
     }
   }
+  // curl http://192.168.1.201/?fp=CCCCCCC
+  else if (command.length() == NB_FILS_PILOTES)
+  {
+    char   cmd[] = "xx" ; // buffer contenant la commande à passer à setFP
+    uint8_t fp;
+    char cOrdre;
+
+    // envoyer les commandes pour tous les fils pilotes
+    for (uint8_t i=1; i<=NB_FILS_PILOTES; i++)
+    {
+      fp     = '0' + i ;
+      cOrdre = command[i-1]; // l'index de la chaine commence à 0 donc i-1
+
+      // Si on ne doit pas laisser le fil pilote inchangé
+      if (cOrdre != '-' )
+      {
+        if ( (fp < 1 || fp > NB_FILS_PILOTES) ||
+          (cOrdre!='C' && cOrdre!='E' && cOrdre!='H' && cOrdre!='A') )
+        {
+          // erreur
+          Debugln("Argument incorrect");
+        }
+        else {
+          memFP[fp-1] = cOrdre; // On mémorise toujours la commande demandée
+          char cOrdreEnCours = etatFP[fp-1]; // Quel est l'état actuel du fil pilote?
+          if (cOrdreEnCours != 'D') {
+            // ok ici au cas ou la commande setFP n'est pas bonne
+            // on positionne le code de retour à -1 mais on
+            // continue le traitement, les suivantes sont
+            // peut-être correctes
+            if (setfp_interne(fp, cOrdre) == -1)
+              returnValue = -1;
+          }
+        }
+      }
+
+      // Feed the dog
+      _wdt_feed();
+    }
+  }
+  else {
+    returnValue = -1;
+  }
+
+  #ifdef MOD_MQTT
+    String message = String("{\"FP\":\"" + String(etatFP) + "\"}");
+    if ( lastMqttMessageFP != message ) {
+      char message_send[] = "";
+      message.toCharArray(message_send, message.length()+1);
+      Debug("message_send = ");
+      Debugln(message_send);
+      if ( mqttClient.publish(MQTT_TOPIC_FP, 2, true, message_send)  == 0 ) {
+        Debugf("Mqtt : Erreur publish FP1\n");
+      }
+      lastMqttMessageFP = message;
+    }
+  #endif
+
   return(returnValue);
 }
 
@@ -143,20 +203,6 @@ int setfp_interne(uint8_t fp, char cOrdre)
     etatFP[fp-1]=cOrdre;
     Debug("etatFP=");
     Debugln(etatFP);
-
-    #ifdef MOD_MQTT
-      String message = String("{\"FP\":\"" + String(etatFP) + "\"}");
-      if ( lastMqttMessageFP != message ) {
-        char message_send[] = "";
-        message.toCharArray(message_send, message.length()+1);
-        Debug("message_send = ");
-        Debugln(message_send);
-        if ( mqttClient.publish(MQTT_TOPIC_FP, 2, true, message_send)  == 0 ) {
-          Debugf("Mqtt : Erreur publish FP1\n");
-        }
-        lastMqttMessageFP = message;
-      }
-    #endif
 
     switch (cOrdre)
     {
@@ -292,65 +338,6 @@ void decalerDelestage(void)
   Debug(nivDelest);
   Debug(" ; plusAncienneZoneDelestee=");
   Debugln(plusAncienneZoneDelestee);
-}
-
-/* ======================================================================
-Function: fp
-Purpose : selectionne le mode d'un ou plusieurs les fils pilotes d'un coup
-Input   : liste des commandes
-          -=rien, C=Confort, A=Arrêt, E=Eco, H=Hors gel, 1=Eco-1, 2=Eco-2,
-          ex: 1A => FP1 Arrêt
-              CCCCCCC => Commande tous les fils pilote en mode confort (ON)
-              AAAAAAA => Commande tous les fils pilote en mode arrêt
-              EEEEEEE => Commande tous les fils pilote en mode éco
-              CAAAAAA => Tous OFF sauf le fil pilote 1 en confort
-              A-AAAAA => Tous OFF sauf le fil pilote 2 inchangé
-              E-CHA12 => FP2 Eco  , FP2 inchangé, FP3 confort, FP4 hors gel
-                        FP5 arrêt, FP6 Eco-1    , FP7 Eco-2
-Output  : 0 si ok -1 sinon
-Comments: exposée par l'API spark donc attaquable par requête HTTP(S)
-====================================================================== */
-int fp(String command)
-{
-  command.trim();
-  command.toUpperCase();
-
-  Debug("fp=");
-  Debugln(command);
-
-
-  // Vérifier que l'on a la commande de tous les fils pilotes
-  if (command.length() != NB_FILS_PILOTES)
-  {
-      return(-1) ;
-  }
-  else
-  {
-    int8_t returnValue = 0; // Init à 0 => OK
-    char   cmd[] = "xx" ; // buffer contenant la commande à passer à setFP
-
-    // envoyer les commandes pour tous les fils pilotes
-    for (uint8_t i=1; i<=NB_FILS_PILOTES; i++)
-    {
-      cmd[0] = '0' + i ;
-      cmd[1] = command[i-1]; // l'index de la chaine commence à 0 donc i-1
-
-      // Si on ne doit pas laisser le fil pilote inchangé
-      if (cmd[1] != '-' )
-      {
-        // ok ici au cas ou la commande setFP n'est pas bonne
-        // on positionne le code de retour à -1 mais on
-        // continue le traitement, les suivantes sont
-        // peut-être correctes
-        if (setfp(cmd) == -1)
-          returnValue = -1;
-      }
-
-      // Feed the dog
-      _wdt_feed();
-    }
-    return returnValue;
-  }
 }
 
 /* ======================================================================
