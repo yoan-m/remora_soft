@@ -965,29 +965,24 @@ void handleFormConfig(AsyncWebServerRequest *request)
     // MQTT
     #ifdef MOD_MQTT
       if (request->hasParam("mqtt_isActivated", true)) {
-        if (request->getParam("mqtt_isActivated", true)->value().c_str() == "on") {
-          config.mqtt.isActivated = true;
+        config.mqtt.isActivated = true;
 
-          strncpy(config.mqtt.protocol, request->getParam("mqtt_protocol", true)->value().c_str(),   CFG_MQTT_PROTOCOL_SIZE);
-          strncpy(config.mqtt.host,     request->getParam("mqtt_host", true)->value().c_str(),       CFG_MQTT_HOST_SIZE);
-          itemp = request->getParam("mqtt_port", true)->value().toInt();
-          config.mqtt.port = (itemp>=0 && itemp<=65535) ? itemp : CFG_MQTT_DEFAULT_PORT ;
+        strncpy(config.mqtt.protocol, request->getParam("mqtt_protocol", true)->value().c_str(),   CFG_MQTT_PROTOCOL_SIZE);
+        strncpy(config.mqtt.host,     request->getParam("mqtt_host", true)->value().c_str(),       CFG_MQTT_HOST_SIZE);
+        itemp = request->getParam("mqtt_port", true)->value().toInt();
+        config.mqtt.port = (itemp>=0 && itemp<=65535) ? itemp : CFG_MQTT_DEFAULT_PORT ;
 
-          if (request->hasParam("mqtt_hasAuth", true)) {
-            if (request->getParam("mqtt_hasAuth", true)->value().c_str() == "on") {
-              config.mqtt.hasAuth = true;
+        if (request->hasParam("mqtt_hasAuth", true)) {
+          config.mqtt.hasAuth = true;
 
-              strncpy(config.mqtt.user,     request->getParam("mqtt_user", true)->value().c_str(),       CFG_MQTT_USER_SIZE);
-              strncpy(config.mqtt.password, request->getParam("mqtt_password", true)->value().c_str(),   CFG_MQTT_PASSWORD_SIZE);
-            }
-          }
-          else
-            config.mqtt.hasAuth = false;
+          strncpy(config.mqtt.user,     request->getParam("mqtt_user", true)->value().c_str(),       CFG_MQTT_USER_SIZE);
+          strncpy(config.mqtt.password, request->getParam("mqtt_password", true)->value().c_str(),   CFG_MQTT_PASSWORD_SIZE);
         }
+        else
+            config.mqtt.hasAuth = false;
       }
       else
         config.mqtt.isActivated = false;
-
 
       if (mqttIsConnected())
         disconnectMqtt();
