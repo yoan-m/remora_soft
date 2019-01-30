@@ -13,7 +13,7 @@
       Timer_tinfo,
       elapsed = 0,
       ledBrightSlider,
-      debug = true;
+      debug = false;
 
   function Notify(mydelay, myicon, mytype, mytitle, mymsg) {
     $('body').addClass('loaded');
