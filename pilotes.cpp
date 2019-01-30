@@ -80,11 +80,13 @@ int setfp(String command)
     // la commande est vérifiée dans fpC, pas besoin de traiter ici
     uint8_t fp = command[0]-'0';
     char cOrdre= command[1];
+
     if ( (fp < 1 || fp > NB_FILS_PILOTES) ||
         (cOrdre!='C' && cOrdre!='E' && cOrdre!='H' && cOrdre!='A') )
     {
         // erreur
-        Debugln("Argument incorrect");
+        Debug("Argument incorrect : ");
+        Debugln(cOrdre);
     }
     else
     {
@@ -106,10 +108,12 @@ int setfp(String command)
     uint8_t fp;
     char cOrdre;
 
+    returnValue = 0;
+
     // envoyer les commandes pour tous les fils pilotes
     for (uint8_t i=1; i<=NB_FILS_PILOTES; i++)
     {
-      fp     = '0' + i ;
+      fp     = i ;
       cOrdre = command[i-1]; // l'index de la chaine commence à 0 donc i-1
 
       // Si on ne doit pas laisser le fil pilote inchangé
@@ -119,7 +123,9 @@ int setfp(String command)
           (cOrdre!='C' && cOrdre!='E' && cOrdre!='H' && cOrdre!='A') )
         {
           // erreur
-          Debugln("Argument incorrect");
+          Debug("Argument incorrect : ");
+          Debug(fp);
+          Debugln(cOrdre);
         }
         else {
           memFP[fp-1] = cOrdre; // On mémorise toujours la commande demandée
