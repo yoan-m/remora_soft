@@ -13,7 +13,7 @@
       Timer_tinfo,
       elapsed = 0,
       ledBrightSlider,
-      debug = false;
+      debug = true;
 
   function Notify(mydelay, myicon, mytype, mytitle, mymsg) {
     $('body').addClass('loaded');
@@ -486,6 +486,16 @@
         if ($('#jdom_port').val() != 443) {
           $('#jdom_finger').val('');
         }
+
+//        if ($("#mqtt_isActivated").prop("checked"))
+//          $("#mqtt_isActivated").val("true");
+//        else
+//          $("#mqtt_isActivated").val("false");
+//
+//        if ($("#mqtt_hasAuth").prop("checked"))
+//          $("#mqtt_hasAuth").val("true");
+//        else
+//          $("#mqtt_hasAuth").val("test");
 
         $.post('/config_form.json', $("#frm_config").serialize())
           .done( function(msg, textStatus, xhr) {

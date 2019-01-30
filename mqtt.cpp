@@ -152,7 +152,7 @@ void initMqtt(void) {
   if (config.mqtt.host != "" && config.mqtt.port > 0) {
     mqttClient.setServer(config.mqtt.host, config.mqtt.port);
   }
-  if (config.mqtt.user != "" && config.mqtt.password != "") {
+  if (config.mqtt.hasAuth && config.mqtt.user != "" && config.mqtt.password != "") {
     mqttClient.setCredentials(config.mqtt.user, config.mqtt.password);
   }
   #if ASYNC_TCP_SSL_ENABLED
