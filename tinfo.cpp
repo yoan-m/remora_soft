@@ -414,12 +414,9 @@ void tinfo_loop(void)
           if ( mqttClient.publish(MQTT_TOPIC_TINFO, 2, false, message_send)  == 0 ) {
             Debugf("Mqtt : Erreur publish Tinfo\n");
           }
-          lastMqttMessageFP = message;
+          lastMqttMessageTinfo = message;
         }
       }
-
-
-    tinfoJSON
     #endif
   }
 
