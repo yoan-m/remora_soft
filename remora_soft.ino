@@ -521,7 +521,7 @@ void mysetup()
 
     // Init de la téléinformation
     #ifdef MOD_TELEINFO
-      if (strcmp(config.compteur_modele, "linky") && strcmp(config.compteur_tic, "standard")) {
+      if (strcmp(config.compteur_tic, "standard") == 0) {
         Debugln("TIC standard : Serial 9600 bps");
         Serial.begin(9600, SERIAL_7E1);
       }
