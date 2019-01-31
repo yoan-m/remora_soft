@@ -39,6 +39,18 @@ int lastPtec          = PTEC_HP;
 unsigned long tinfo_led_timer = 0; // Led blink timer
 unsigned long tinfo_last_frame = 0; // dernière fois qu'on a recu une trame valide
 
+#ifdef MOD_MQTT
+  String lastMqttMessageTinfo = "";
+#endif
+
+const char FP_JSON_START[] PROGMEM = "{\r\n";
+const char FP_JSON_END[] PROGMEM = "\r\n}\r\n";
+const char FP_QCQ[] PROGMEM = "\":\"";
+const char FP_QCNL[] PROGMEM = "\",\r\n\"";
+const char FP_QCB[] PROGMEM = "\":";
+const char FP_BNL[] PROGMEM = ",\r\n\"";
+const char FP_NL[] PROGMEM = "\r\n";
+
 ptec_e ptec; // Puissance tarifaire en cours
 
 /* ======================================================================
@@ -220,6 +232,75 @@ void UpdatedFrame(ValueList * me)
 }
 
 /* ======================================================================
+Function: getTinfoListJson
+Purpose : dump all teleinfo values in JSON
+Input   : -
+Output  : -
+Comments: -
+====================================================================== */
+String getTinfoListJson(void)
+{ 
+  ValueList * me = tinfo.getList();
+  String response = "";
+
+  // Got at least one ?
+  if (me) {
+    char * p;
+    long value;
+
+    // Json start
+    response += FPSTR(FP_JSON_START);
+    response += F("\"_UPTIME\":");
+    response += uptime;
+    response += FPSTR(FP_NL) ;
+
+    // Loop thru the node
+    while (me->next) {
+      // go to next node
+      me = me->next;
+
+      if (tinfo.calcChecksum(me->name,me->value) == me->checksum) {
+        response += F(",\"") ;
+        response += me->name ;
+        response += FPSTR(FP_QCB);
+
+        // Check if value is a number
+        value = strtol(me->value, &p, 10);
+
+        // conversion failed, add "value"
+        if (*p) {
+          response += F("\"") ;
+          response += me->value ;
+          response += F("\"") ;
+
+        // number, add "value"
+        } else {
+          response += value ;
+        }
+        //formatNumberJSON(response, me->value);
+      } else {
+        response = F(",\"_Error\":\"");
+        response = me->name;
+        response = "=";
+        response = me->value;
+        response = F(" CHK=");
+        response = (char) me->checksum;
+        response = "\"";
+      }
+
+      // Add new line to see more easier end of field
+      response += FPSTR(FP_NL) ;
+
+    }
+    // Json end
+    response += FPSTR(FP_JSON_END) ;
+    return response;
+  }
+  else
+    return (String(-1, DEC));
+}
+
+/* ======================================================================
 Function: tinfo_setup
 Purpose : prepare and init stuff, configuration, ..
 Input   : indique si on doit bloquer jusqu'à reception ligne téléinfo
@@ -320,6 +401,26 @@ void tinfo_loop(void)
       tinfo_led_timer = millis();
       Debugln("Teleinfo toujours absente!");
     }
+
+    #ifdef MOD_MQTT
+    // Send téléinfo via mqtt
+      if (config.mqtt.isActivated && mqttIsConnected()) {
+        String message = getTinfoListJson();
+        if ( lastMqttMessageTinfo != message ) {
+          char message_send[] = "";
+          message.toCharArray(message_send, message.length()+1);
+          Debug("message_send = "); 
+          Debugln(message_send);
+          if ( mqttClient.publish(MQTT_TOPIC_TINFO, 2, false, message_send)  == 0 ) {
+            Debugf("Mqtt : Erreur publish Tinfo\n");
+          }
+          lastMqttMessageFP = message;
+        }
+      }
+
+
+    tinfoJSON
+    #endif
   }
 
   // Caractère présent sur la sérial téléinfo ?

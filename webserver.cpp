@@ -644,64 +644,11 @@ Comments: -
 void tinfoJSON(AsyncWebServerRequest *request)
 {
   #ifdef MOD_TELEINFO
-    ValueList * me = tinfo.getList();
-    String response = "";
-
-    // Got at least one ?
-    if (me) {
-      char * p;
-      long value;
-
-      // Json start
-      response += FPSTR(FP_JSON_START);
-      response += F("\"_UPTIME\":");
-      response += uptime;
-      response += FPSTR(FP_NL) ;
-
-      // Loop thru the node
-      while (me->next) {
-        // go to next node
-        me = me->next;
-
-        if (tinfo.calcChecksum(me->name,me->value) == me->checksum) {
-          response += F(",\"") ;
-          response += me->name ;
-          response += F("\":") ;
-
-          // Check if value is a number
-          value = strtol(me->value, &p, 10);
-
-          // conversion failed, add "value"
-          if (*p) {
-            response += F("\"") ;
-            response += me->value ;
-            response += F("\"") ;
-
-          // number, add "value"
-          } else {
-            response += value ;
-          }
-          //formatNumberJSON(response, me->value);
-        } else {
-          response = F(",\"_Error\":\"");
-          response = me->name;
-          response = "=";
-          response = me->value;
-          response = F(" CHK=");
-          response = (char) me->checksum;
-          response = "\"";
-        }
-
-        // Add new line to see more easier end of field
-        response += FPSTR(FP_NL) ;
-
-      }
-      // Json end
-      response += FPSTR(FP_JSON_END) ;
-    } else {
+    String response = getTinfoListJson();
+    if (response != String(-1, DEC))
+      request->send(200, "application/json", response);
+    else
       request->send(404, "text/plain", "No data");
-    }
-    request->send(200, "application/json", response);
   #else
     request->send(404, "text/plain", "teleinfo not enabled");
   #endif
