@@ -234,7 +234,7 @@ Input   : -
 Output  : -
 Comments: -
 ====================================================================== */
-void  getTinfoListJson(String &response)
+void  getTinfoListJson(String &response, bool with_uptime)
 { 
   ValueList * me = tinfo.getList();
   //String response = "";
@@ -246,17 +246,23 @@ void  getTinfoListJson(String &response)
 
     // Json start
     response += FPSTR(FP_JSON_START);
-    response += F("\"_UPTIME\":");
-    response += uptime;
-    response += FPSTR(FP_NL) ;
+    if (with_uptime) {
+      response += F("\"_UPTIME\":");
+      response += uptime;
+      response += FPSTR(FP_NL) ;
+    }
 
+    bool loop_first = true;
     // Loop thru the node
     while (me->next) {
       // go to next node
       me = me->next;
 
       if (tinfo.calcChecksum(me->name,me->value) == me->checksum) {
-        response += F(",\"") ;
+        if (!loop_first) {
+          response += F(",\"") ;
+          loop_first = false;
+        }
         response += me->name ;
         response += FPSTR(FP_QCB);
 

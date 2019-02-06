@@ -19,6 +19,7 @@ AsyncMqttClient mqttClient;
 Ticker mqttReconnectTimer;
 #ifdef MOD_TELEINFO
   Ticker mqttTinfoTimer;
+   String lastMqttMessageTinfo = "";
 #endif
 int nbRestart = 0;
 
@@ -44,11 +45,14 @@ void mqttTinfoPublish(void) {
     // Send téléinfo via mqtt
     if (config.mqtt.isActivated && mqttIsConnected()) {
       String message = "";
-      getTinfoListJson(message);
-      DebugF("message_send = ");
-      Debugln(message);
-      if (mqttClient.publish(MQTT_TOPIC_TINFO, 1, false, message.c_str()) == 0) {
-        DebuglnF("Mqtt : Erreur publish Tinfo");
+      getTinfoListJson(message, false);
+      if (lastMqttMessageTinfo != message) {
+        DebugF("message_send = ");
+        Debugln(message);
+        if (mqttClient.publish(MQTT_TOPIC_TINFO, 1, false, message.c_str()) == 0) {
+          DebuglnF("Mqtt : Erreur publish Tinfo");
+        }
+        lastMqttMessageTinfo = message;
       }
     }
   }
