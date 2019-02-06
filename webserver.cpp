@@ -644,8 +644,9 @@ Comments: -
 void tinfoJSON(AsyncWebServerRequest *request)
 {
   #ifdef MOD_TELEINFO
-    String response = getTinfoListJson();
-    if (response != String(-1, DEC))
+    String response = "";
+    getTinfoListJson(response);
+    if (response != "-1")
       request->send(200, "application/json", response);
     else
       request->send(404, "text/plain", "No data");

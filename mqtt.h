@@ -18,6 +18,7 @@
 
 #include "remora.h"
 
+#ifdef MOD_MQTT
 #define MQTT_TOPIC_BASE "remora/"
 
 // under MQTT_TOPIC_SET  we are reading subtopics to set fp & relai
@@ -32,9 +33,10 @@
 // Under MQTT_TOPIC_TINFO we are send teleinformation
 #define MQTT_TOPIC_TINFO  MQTT_TOPIC_BASE "tinfo"
 
+#define DELAY_PUBLISH_TINFO 1
+
 // Variables
 extern AsyncMqttClient mqttClient;
-extern Ticker mqttReconnectTimer;
 
 // Fonctions
 void connectToMqtt(void);
@@ -48,4 +50,5 @@ void initMqtt(void);
 void disconnectMqtt(void);
 bool mqttIsConnected(void);
 
+#endif
 #endif

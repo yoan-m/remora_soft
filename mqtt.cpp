@@ -17,10 +17,13 @@
 #ifdef MOD_MQTT
 AsyncMqttClient mqttClient;
 Ticker mqttReconnectTimer;
+#ifdef MOD_TELEINFO
+  Ticker mqttTinfoTimer;
+#endif
 int nbRestart = 0;
 
 void connectToMqtt() {
-  Debugln("Connection au broker MQTT...");
+  DebuglnF("Connection au broker MQTT...");
   initMqtt();
   mqttClient.connect();
 }
@@ -35,24 +38,37 @@ bool mqttIsConnected() {
   return mqttClient.connected();
 }
 
+#ifdef MOD_TELEINFO
+void mqttTinfoPublish(void) {
+  if (status & STATUS_TINFO) {
+    // Send téléinfo via mqtt
+    if (config.mqtt.isActivated && mqttIsConnected()) {
+      String message = "";
+      getTinfoListJson(message);
+      DebugF("message_send = ");
+      Debugln(message);
+      if (mqttClient.publish(MQTT_TOPIC_TINFO, 1, false, message.c_str()) == 0) {
+        DebuglnF("Mqtt : Erreur publish Tinfo");
+      }
+    }
+  }
+}
+#endif
+
 void onMqttConnect(bool sessionPresent) {
-  Debugln("Connecté au broker MQTT");
-  Debug("Session : ");
-  Debugln(sessionPresent);
+  DebuglnF("Connecté au broker MQTT");
   if (sessionPresent)
     nbRestart = 0;
 
-  // subscribe au topic setFP
+  // subscribe au topic set
   uint16_t packetIdSub = mqttClient.subscribe(MQTT_TOPIC_SET, 2);
-  Debug("Subscribing at QoS 2, packetId: ");
-  Debugln(packetIdSub);
 
-  mqttClient.publish(MQTT_TOPIC_FP, 2, false, "{\"FP\":\"UP\"}");
-  mqttClient.publish(MQTT_TOPIC_RELAIS, 2, false, "{\"RELAIS\":\"UP\"}");
+  mqttClient.publish(MQTT_TOPIC_FP, 1, false, "{\"FP\":\"UP\"}");
+  mqttClient.publish(MQTT_TOPIC_RELAIS, 1, false, "{\"RELAIS\":\"UP\"}");
 }
 
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
-  Debugln("Déconnection du broker MQTT.");
+  DebuglnF("Déconnection du broker MQTT.");
 
   if (WiFi.isConnected() && config.mqtt.isActivated) {
     if (nbRestart < 2)
@@ -68,78 +84,55 @@ void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
 }
 
 void onMqttSubscribe(uint16_t packetId, uint8_t qos) {
-  Debugln("Subscribe acknowledged.");
-  Debug("  packetId: ");
-  Debugln(packetId);
-  Debug("  qos: ");
-  Debugln(qos);
+  DebuglnF("Subscribing at topic");
 }
 
 void onMqttUnsubscribe(uint16_t packetId) {
-  Debugln("Unsubscribe acknowledged.");
-  Debug("  packetId: ");
-  Debugln(packetId);
+  DebuglnF("Unsubscribe topic");
 }
 
 void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
-  Debugln("Publish received.");
-  Debug("  topic: ");
+  DebugF("MQTT new message : topic ");
   Debugln(topic);
-  Debug("  qos: ");
-  Debugln(properties.qos);
-  Debug("  dup: ");
-  Debugln(properties.dup);
-  Debug("  retain: ");
-  Debugln(properties.retain);
-  Debug("  len: ");
-  Debugln(len);
-  Debug("  index: ");
-  Debugln(index);
-  Debug("  total: ");
-  Debugln(total);
 
   String message = String(payload);
 
   if ( len == 2 && message.startsWith("FP") ) {
     String message = String("{\"FP\":\"" + String(etatFP) + "\"}");
-    char message_send[] = "";
-    message.toCharArray(message_send, message.length() + 1);
-    Debug("message_send = ");
-    Debugln(message_send);
-    if (mqttClient.publish(MQTT_TOPIC_FP, 2, false, message_send)  == 0) {
-      Debugf("Mqtt : Erreur publish FP2\n");
+    DebugF("message send = ");
+    Debugln(message);
+    if (mqttClient.publish(MQTT_TOPIC_FP, 1, false, message.c_str())  == 0) {
+      DebuglnF("Mqtt : Erreur publish FP2");
     }
   }
   else if (len == 5 && message.startsWith("FP=")) {
     message.remove(len);
     message.remove(0, 3);
-    Debug("message = ");
+    DebugF("message = ");
     Debugln(message);
     setfp(message);
   }
   else if (len == 11 && message.startsWith("FPS=")) {
     message.remove(len);
     message.remove(0, 4);
-    Debug("message = ");
+    DebugF("message = ");
     Debugln(message);
     setfp(message);
   }
   else if (len == 3 && message.startsWith("R=")) {
     message.remove(len);
     message.remove(0, 2);
-    Debug("message = ");
+    DebugF("message = ");
     Debugln(message);
     fnct_relais(message);
   }
   else {
-    Debugln("Mqtt: Bad payload");
+    DebuglnF("Mqtt: Bad payload");
   }
 }
 
 void onMqttPublish(uint16_t packetId) {
-  Debugln("Publish acknowledged.");
-  Debug("  packetId: ");
-  Debugln(packetId);
+  Serial.printf_P(PSTR("Publish packetId: %d\n"), packetId);
 }
 
 void initMqtt(void) {
@@ -159,6 +152,10 @@ void initMqtt(void) {
     if (config.mqtt.protocol == "mqtts") {
       mqttClient.setSecure(true);
     }
+  #endif
+
+  #ifdef MOD_TELEINFO
+    mqttTinfoTimer.attach(DELAY_PUBLISH_TINFO, mqttTinfoPublish);
   #endif
 }
 #endif // #ifdef MOD_MQTT

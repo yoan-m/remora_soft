@@ -342,7 +342,7 @@ Output  :
 Comments: Fire when the WiFi Station get ip
 ====================================================================== */
 void onWifiStaConnect(const WiFiEventStationModeGotIP& event) {
-  Debug("Connecté au WiFi STA, IP : ");
+  DebugF("Connecté au WiFi STA, IP : ");
   Debugln(WiFi.localIP());
   #ifdef MOD_MQTT
     if (config.mqtt.isActivated)
@@ -358,10 +358,7 @@ Output  :
 Comments: Fire when the WiFi Station is disconnected
 ====================================================================== */
 void onWifiStaDisconnect(const WiFiEventStationModeDisconnected& event) {
-  Debugln("Déconecté du WiFi.");
-  #ifdef MOD_MQTT
-    mqttReconnectTimer.detach(); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
-  #endif
+  DebuglnF("Déconecté du WiFi.");
   wifiReconnectTimer.once(2, WifiReConn);
 }
 

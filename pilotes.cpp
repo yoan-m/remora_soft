@@ -57,7 +57,7 @@ int setfp(String command)
   command.trim();
   command.toUpperCase();
 
-  Debug("setfp=");
+  DebugF("setfp=");
   Debugln(command);
 
   int returnValue = -1;
@@ -85,7 +85,7 @@ int setfp(String command)
         (cOrdre!='C' && cOrdre!='E' && cOrdre!='H' && cOrdre!='A') )
     {
         // erreur
-        Debug("Argument incorrect : ");
+        DebugF("Argument incorrect : ");
         Debugln(cOrdre);
     }
     else
@@ -123,7 +123,7 @@ int setfp(String command)
           (cOrdre!='C' && cOrdre!='E' && cOrdre!='H' && cOrdre!='A') )
         {
           // erreur
-          Debug("Argument incorrect : ");
+          DebugF("Argument incorrect : ");
           Debug(fp);
           Debugln(cOrdre);
         }
@@ -153,12 +153,10 @@ int setfp(String command)
     if (config.mqtt.isActivated && mqttIsConnected()) {
       String message = String("{\"FP\":\"" + String(etatFP) + "\"}");
       if ( lastMqttMessageFP != message ) {
-        char message_send[] = "";
-        message.toCharArray(message_send, message.length()+1);
-        Debug("message_send = ");
-        Debugln(message_send);
-        if ( mqttClient.publish(MQTT_TOPIC_FP, 2, false, message_send)  == 0 ) {
-          Debugf("Mqtt : Erreur publish FP1\n");
+        DebugF("message send = ");
+        Debugln(message);
+        if ( mqttClient.publish(MQTT_TOPIC_FP, 1, false, message.c_str())  == 0 ) {
+          DebuglnF("Mqtt : Erreur publish FP1");
         }
         lastMqttMessageFP = message;
       }
@@ -189,9 +187,9 @@ int setfp_interne(uint8_t fp, char cOrdre)
   // Pour le moment les ordres Eco-1 et Eco-2 ne sont pas traités
   // 'D' correspond à délestage
 
-  Debug("setfp_interne : fp=");
+  DebugF("setfp_interne : fp=");
   Debug(fp);
-  Debug(" ; cOrdre=");
+  DebugF(" ; cOrdre=");
   Debugln(cOrdre);
 
   if ( (fp < 1 || fp > NB_FILS_PILOTES) ||
@@ -209,7 +207,7 @@ int setfp_interne(uint8_t fp, char cOrdre)
     // tableau d'index de 0 à 6 pas de 1 à 7
     // on en profite pour Sauver l'état
     etatFP[fp-1]=cOrdre;
-    Debug("etatFP=");
+    DebugF("etatFP=");
     Debugln(etatFP);
 
     switch (cOrdre)
@@ -271,9 +269,9 @@ void delester1zone(void)
 {
   uint8_t numFp; // numéro du fil pilote à délester
 
-  Debug("delester1zone() : avant : nivDelest=");
+  DebugF("delester1zone() : avant : nivDelest=");
   Debug(nivDelest);
-  Debug(" ; plusAncienneZoneDelestee=");
+  DebugF(" ; plusAncienneZoneDelestee=");
   Debugln(plusAncienneZoneDelestee);
 
   if (nivDelest < NB_FILS_PILOTES) // On s'assure que l'on n'est pas au niveau max
@@ -283,9 +281,9 @@ void delester1zone(void)
     setfp_interne(numFp, 'D');
   }
 
-  Debug("delester1zone() : apres : nivDelest=");
+  DebugF("delester1zone() : apres : nivDelest=");
   Debug(nivDelest);
-  Debug(" ; plusAncienneZoneDelestee=");
+  DebugF(" ; plusAncienneZoneDelestee=");
   Debugln(plusAncienneZoneDelestee);
 }
 
@@ -300,9 +298,9 @@ void relester1zone(void)
 {
   uint8_t numFp; // numéro du fil pilote à passer HORS-GEL
 
-  Debug("relester1zone() : avant : nivDelest=");
+  DebugF("relester1zone() : avant : nivDelest=");
   Debug(nivDelest);
-  Debug(" ; plusAncienneZoneDelestee=");
+  DebugF(" ; plusAncienneZoneDelestee=");
   Debugln(plusAncienneZoneDelestee);
 
   if (nivDelest > 0) // On s'assure qu'un délestage est en cours
@@ -314,9 +312,9 @@ void relester1zone(void)
     plusAncienneZoneDelestee = (plusAncienneZoneDelestee % NB_FILS_PILOTES) + 1;
   }
 
-  Debug("relester1zone() : apres : nivDelest=");
+  DebugF("relester1zone() : apres : nivDelest=");
   Debug(nivDelest);
-  Debug(" ; plusAncienneZoneDelestee=");
+  DebugF(" ; plusAncienneZoneDelestee=");
   Debugln(plusAncienneZoneDelestee);
 }
 
@@ -329,9 +327,9 @@ Comments: -
 ====================================================================== */
 void decalerDelestage(void)
 {
-  Debug("decalerDelestage() : avant : nivDelest=");
+  DebugF("decalerDelestage() : avant : nivDelest=");
   Debug(nivDelest);
-  Debug(" ; plusAncienneZoneDelestee=");
+  DebugF(" ; plusAncienneZoneDelestee=");
   Debugln(plusAncienneZoneDelestee);
 
   if (nivDelest > 0 && nivDelest < NB_FILS_PILOTES)
@@ -342,9 +340,9 @@ void decalerDelestage(void)
     delester1zone();
   }
 
-  Debug("decalerDelestage() : apres : nivDelest=");
+  DebugF("decalerDelestage() : apres : nivDelest=");
   Debug(nivDelest);
-  Debug(" ; plusAncienneZoneDelestee=");
+  DebugF(" ; plusAncienneZoneDelestee=");
   Debugln(plusAncienneZoneDelestee);
 }
 
@@ -389,12 +387,10 @@ int relais(String command)
     if (config.mqtt.isActivated && mqttIsConnected()) {
       String message = String("{\"Mode\":\"" + String(fnctRelais) + "\",\"Etat\":\"" + String(cmd) + "\"}");
       if ( lastMqttMessageRelais != message ) {
-        char message_send[] = "";
-        message.toCharArray(message_send, message.length()+1);
-        Debug("message_send = ");
-        Debugln(message_send);
-        if ( mqttClient.publish(MQTT_TOPIC_RELAIS, 2, true, message_send)  == 0 ) {
-          Debugf("Mqtt : Erreur publish Relais1\n");
+        DebugF("message_send = ");
+        Debugln(message);
+        if ( mqttClient.publish(MQTT_TOPIC_RELAIS, 1, false, message.c_str())  == 0 ) {
+          DebuglnF("Mqtt : Erreur publish Relais1");
         }
         lastMqttMessageRelais = message;
       }
@@ -416,8 +412,8 @@ int fnct_relais(String command)
   command.trim();
   uint8_t cmd = command.toInt();
 
-  Debug("fnct_relais="); Debugln(command);
-  Debug("command length="); Debugln(command.length());
+  DebugF("fnct_relais="); Debugln(command);
+  DebugF("command length="); Debugln(command.length());
   Debugf("cmd: %d\n", cmd);
   //Debugflush();
 
@@ -490,19 +486,19 @@ bool pilotes_setup(void)
 
   // Cartes Version 1.2+ pilotage part I/O Expander
   #else
-    Debug("Initializing MCP23017...Searching...");
+    DebugF("Initializing MCP23017...Searching...");
     Debugflush();
 
     // Détection du MCP23017
     if (!i2c_detect(MCP23017_ADDRESS))
     {
-      Debugln("Not found!");
+      DebuglnF("Not found!");
       Debugflush();
       return (false);
     }
     else
     {
-      Debug("Setup...");
+      DebugF("Setup...");
       Debugflush();
 
       // et l'initialiser
@@ -511,7 +507,7 @@ bool pilotes_setup(void)
       // Mettre les 16 I/O PIN en sortie
       mcp.writeRegister(MCP23017_IODIRA,0x00);
       mcp.writeRegister(MCP23017_IODIRB,0x00);
-      Debugln("OK!");
+      DebuglnF("OK!");
       Debugflush();
     }
   #endif
