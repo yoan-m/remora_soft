@@ -259,10 +259,13 @@ void  getTinfoListJson(String &response, bool with_uptime)
       me = me->next;
 
       if (tinfo.calcChecksum(me->name,me->value) == me->checksum) {
-        if (!loop_first)
+        if (!loop_first) {
           response += F(",\"") ;
-        else
+        }
+        else {
+          response += F("\"") ;
           loop_first = false;
+        }
         response += me->name ;
         response += FPSTR(FP_QCB);
 
