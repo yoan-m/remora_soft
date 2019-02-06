@@ -49,6 +49,8 @@ void onMqttPublish(uint16_t);
 void initMqtt(void);
 void disconnectMqtt(void);
 bool mqttIsConnected(void);
+void mqttFpPublish(void);
+void mqttRelaisPublish(void);
 
 #endif
 #endif

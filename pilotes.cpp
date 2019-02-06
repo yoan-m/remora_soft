@@ -29,11 +29,6 @@ uint8_t plusAncienneZoneDelestee = 1;
 // C'est la première zone à être délestée
 unsigned long timerDelestRelest = 0; // Timer de délestage/relestage
 
-#ifdef MOD_MQTT
-  String lastMqttMessageFP = "";
-  String lastMqttMessageRelais = "";
-#endif
-
 // Instanciation de l'I/O expander
 Adafruit_MCP23017 mcp;
 
@@ -150,17 +145,7 @@ int setfp(String command)
   }
 
   #ifdef MOD_MQTT
-    if (config.mqtt.isActivated && mqttIsConnected()) {
-      String message = String("{\"FP\":\"" + String(etatFP) + "\"}");
-      if ( lastMqttMessageFP != message ) {
-        DebugF("message send = ");
-        Debugln(message);
-        if ( mqttClient.publish(MQTT_TOPIC_FP, 1, false, message.c_str())  == 0 ) {
-          DebuglnF("Mqtt : Erreur publish FP1");
-        }
-        lastMqttMessageFP = message;
-      }
-    }
+    mqttFpPublish();
   #endif
 
   return(returnValue);
@@ -384,17 +369,7 @@ int relais(String command)
   #endif
     
   #ifdef MOD_MQTT
-    if (config.mqtt.isActivated && mqttIsConnected()) {
-      String message = String("{\"Mode\":\"" + String(fnctRelais) + "\",\"Etat\":\"" + String(cmd) + "\"}");
-      if ( lastMqttMessageRelais != message ) {
-        DebugF("message_send = ");
-        Debugln(message);
-        if ( mqttClient.publish(MQTT_TOPIC_RELAIS, 1, false, message.c_str())  == 0 ) {
-          DebuglnF("Mqtt : Erreur publish Relais1");
-        }
-        lastMqttMessageRelais = message;
-      }
-    }
+    mqttRelaisPublish();
   #endif
 
   return (etatrelais);

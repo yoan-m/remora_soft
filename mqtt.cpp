@@ -17,9 +17,11 @@
 #ifdef MOD_MQTT
 AsyncMqttClient mqttClient;
 Ticker mqttReconnectTimer;
+String lastMqttMessageFP = "";
+String lastMqttMessageRelais = "";
 #ifdef MOD_TELEINFO
   Ticker mqttTinfoTimer;
-   String lastMqttMessageTinfo = "";
+  String lastMqttMessageTinfo = "";
 #endif
 int nbRestart = 0;
 
@@ -58,6 +60,40 @@ void mqttTinfoPublish(void) {
   }
 }
 #endif
+
+void mqttFpPublish(void) {
+  if (config.mqtt.isActivated && mqttIsConnected()) {
+    String message = F("{\"FP\":\"");
+    message.concat(etatFP);
+    message.concat(F("\"}"));
+    if ( lastMqttMessageFP != message ) { 
+      DebugF("message send = ");
+      Debugln(message);
+      if ( mqttClient.publish(MQTT_TOPIC_FP, 1, false, message.c_str())  == 0 ) {
+        DebuglnF("Mqtt : Erreur publish FP1");
+      }
+      lastMqttMessageFP = message;
+    } 
+  }
+}
+
+void mqttRelaisPublish(void) {
+  if (config.mqtt.isActivated && mqttIsConnected()) {
+    String message = F("{\"Mode\":\"");
+    message.concat(fnctRelais);
+    message.concat(F("\",\"Etat\":\""));
+    message.concat(etatrelais);
+    message.concat(F("\"}"));
+    if ( lastMqttMessageRelais != message ) {
+      DebugF("message_send = ");
+      Debugln(message);
+      if ( mqttClient.publish(MQTT_TOPIC_RELAIS, 1, false, message.c_str())  == 0 ) {
+        DebuglnF("Mqtt : Erreur publish Relais1");
+      }
+      lastMqttMessageRelais = message;
+    }
+  }
+}
 
 void onMqttConnect(bool sessionPresent) {
   DebuglnF("Connecté au broker MQTT");
@@ -101,13 +137,11 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 
   String message = String(payload);
 
-  if ( len == 2 && message.startsWith("FP") ) {
-    String message = String("{\"FP\":\"" + String(etatFP) + "\"}");
-    DebugF("message send = ");
-    Debugln(message);
-    if (mqttClient.publish(MQTT_TOPIC_FP, 1, false, message.c_str())  == 0) {
-      DebuglnF("Mqtt : Erreur publish FP2");
-    }
+  if (len == 2 && message.startsWith("FP")) {
+    mqttFpPublish();
+  }
+  else if (len == 6 && message.startsWith("RELAIS")) {
+    mqttRelaisPublish();
   }
   else if (len == 5 && message.startsWith("FP=")) {
     message.remove(len);
